@@ -1,0 +1,150 @@
+.page-title-xl {
+  font-size: 40px;
+}
+
+.cat-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.cat-card {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.cat-top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.cat-ico {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #f5f5f5;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+
+.cat-name {
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.cat-count {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.cat-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.cat-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.cat-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+}
+
+.cat-icon-btn-danger {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.cat-stats {
+  margin-top: 22px;
+  background: #e11d1d;
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 22px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.cat-stats-label {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 700;
+}
+
+.cat-stats-value {
+  font-size: 40px;
+  font-weight: 900;
+  margin-top: 6px;
+}
+
+.cat-stats-right {
+  text-align: right;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.breadcrumb-link {
+  color: #64748b;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-current {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .cat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .cat-grid {
+    grid-template-columns: 1fr;
+  }
+}

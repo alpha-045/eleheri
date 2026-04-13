@@ -1,0 +1,18 @@
+.account-card {
+  margin-top: 16px;
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  padding: 18px;
+  max-width: 720px;
+}
+
+.account-form {
+  display: grid;
+  gap: 14px;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+}

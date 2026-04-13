@@ -1,0 +1,536 @@
+/* ========================================= */
+/* ======= SEGMENTED CONTROL (TOP) ======== */
+/* ========================================= */
+.ms-seg {
+  display: flex;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 999px;
+  padding: 4px;
+  justify-content: space-around;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.ms-seg-btn {
+  height: 34px;
+  padding: 20px 20px;
+  border-radius: 999px;
+  border: 3px solid rgba(0, 0, 0, 0.036);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 12px;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 50%;
+  transition: all 0.2s;
+}
+
+.ms-seg-btn-active {
+  background: #ffffff;
+  border-color: #eef2f7;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* ========================================= */
+/* ===== GLOBAL SCANNER CONTAINER ========= */
+/* ========================================= */
+.ms-scanner {
+  display: grid;
+  gap: 12px;
+}
+
+/* ========================================= */
+/* ======= FLEXBOX LAPTOP LAYOUT ========== */
+/* ========================================= */
+.ms-scanner-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.ms-scanner-left {
+  flex: 0 0 380px;
+  position: sticky;
+  top: 20px;
+}
+
+.ms-scanner-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 4px; /* مكان باش السكرول بار مايطنش فالContent */
+}
+
+/* ========================================= */
+/* ============= CAMERA VIEW ============== */
+/* ========================================= */
+.ms-viewfinder {
+  width: 100%;
+  background: #0b1020;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 4/3;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.ms-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ms-scanline {
+  position: absolute;
+  left: 10%;
+  width: 80%;
+  height: 2px;
+  background: #ef4444; /* لون أحمر */
+  box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.8); /* توهج أحمر */
+  animation: msScan 2s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* scan pattern: kaymchi mn lta7t (90%) l fou9 (10%) w kay3awd ytla3 (awla kayhbet direct bl opacity) */
+@keyframes msScan {
+  0% { top: 90%; opacity: 0; }
+  10% { opacity: 1; }
+  45% { top: 10%; opacity: 1; }
+  50% { top: 10%; opacity: 0; }
+  60% { top: 90%; opacity: 0; }
+  100% { top: 90%; opacity: 0; }
+}
+
+/* ========================================= */
+/* ======= CORNERS LUI MÉTALIQUE ========== */
+/* ========================================= */
+.ms-viewfinder::before,
+.ms-viewfinder::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #2dd4bf; /* teal color بحال الصورة */
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* top-left & bottom-right */
+.ms-viewfinder::before {
+  top: 20px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 8px 0 0 0;
+  box-shadow: inset 1px 1px 0 rgba(45, 212, 191, 0.2);
+}
+
+.ms-viewfinder::after {
+  bottom: 20px;
+  right: 20px;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 8px 0;
+  box-shadow: inset -1px -1px 0 rgba(45, 212, 191, 0.2);
+}
+
+.ms-viewfinder-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.ms-viewfinder-corners::before,
+.ms-viewfinder-corners::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #2dd4bf;
+}
+/* top-right */
+.ms-viewfinder-corners::before {
+  top: 20px;
+  right: 20px;
+  border-left: none;
+  border-bottom: none;
+  border-radius: 0 8px 0 0;
+}
+/* bottom-left */
+.ms-viewfinder-corners::after {
+  bottom: 20px;
+  left: 20px;
+  border-right: none;
+  border-top: none;
+  border-radius: 0 0 0 8px;
+}
+
+/* ========================================= */
+/* ========= SEARCH & INPUTS ============== */
+/* ========================================= */
+.ms-banner { padding: 10px; border-radius: 8px; font-size: 13px; }
+.ms-banner-err { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+
+.ms-scan-hint {
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+  margin: 12px 0;
+}
+
+.ms-barcode-row {
+  display: grid;
+  gap: 8px;
+}
+
+.ms-barcode-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ms-form-input {
+  flex: 1;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  outline: none;
+  background: #f8fafc;
+}
+
+.ms-form-input:focus { 
+  border-color: #3b82f6; 
+  background: #fff; 
+}
+
+.ms-textarea {
+  min-height: 80px;
+  resize: vertical;
+  padding: 10px 12px;
+  line-height: 1.4;
+  height: auto;
+}
+
+/* ========================================= */
+/* ============ BUTTONS =================== */
+/* ========================================= */
+.ms-btn-ghost, .ms-btn-primary, .ms-btn-danger {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+.ms-btn-ghost:hover { background: #f1f5f9; }
+.ms-btn-primary { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+.ms-btn-primary:hover { background: #2563eb; }
+.ms-btn-danger { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+.ms-btn-danger:hover { background: #fee2e2; }
+.ms-btn-ghost:disabled, .ms-btn-primary:disabled, .ms-btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ========================================= */
+/* ========= SCANNED ARTICLE CARD ========= */
+/* ========================================= */
+.ms-article-card {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 14px;
+  border-radius: 10px;
+}
+
+.ms-article-name { 
+  font-weight: 600; 
+  font-size: 15px; 
+  margin-bottom: 6px; 
+  color: #0f172a;
+}
+
+.ms-article-meta { 
+  display: flex; 
+  gap: 16px; 
+  font-size: 12px; 
+  color: #475569; 
+  flex-wrap: wrap; 
+}
+
+/* ========================================= */
+/* ============= BADGES =================== */
+/* ========================================= */
+.ms-badge { 
+  display: inline-block; 
+  padding: 2px 8px; 
+  border-radius: 6px; 
+  font-size: 11px; 
+  font-weight: 600; 
+  background: #f1f5f9; 
+  color: #475569; 
+}
+
+.ms-badge-ok { 
+  background: #dcfce7; 
+  color: #16a34a; 
+}
+
+.ms-badge-low { 
+  background: #fef2f2; 
+  color: #ef4444; 
+}
+
+.movement-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-block;
+}
+
+.movement-badge-entree {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+}
+
+.movement-badge-sortie {
+  background: rgba(239, 68, 68, 0.10);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.22);
+}
+
+/* ========================================= */
+/* ============= ITEMS TABLE ============== */
+/* ========================================= */
+.ms-items {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ms-items-head { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 12px 14px;
+  flex-wrap: wrap; 
+  gap: 8px;
+}
+
+.ms-items-title { 
+  font-weight: 600; 
+  font-size: 15px; 
+}
+
+.ms-items-table-wrap {
+  overflow-x: auto;
+}
+
+.ms-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  background: #fff;
+}
+
+.ms-items-table th {
+  background: #f8fafc;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ms-items-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ms-qty { width: 120px; }
+.ms-qty .ms-form-input { width: 80px; text-align: center; }
+
+.ms-empty-cell { 
+  text-align: center; 
+  color: #94a3b8; 
+  padding: 30px 10px !important; 
+}
+
+.ms-row-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ========================================= */
+/* =========== BOTTOM FORM GRID =========== */
+/* ========================================= */
+.ms-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ms-form-label { 
+  font-size: 13px; 
+  font-weight: 500; 
+  color: #334155; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+}
+
+.ms-form-select { 
+  height: 40px; 
+  border: 1px solid #e2e8f0; 
+  border-radius: 8px; 
+  padding: 0 12px; 
+  background: #f8fafc; 
+  font-size: 13px; 
+  outline: none; 
+}
+
+.ms-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ========================================= */
+/* =========== MANUAL MODE HINTS ========== */
+/* ========================================= */
+.movement-hint {
+  border: 1px solid #eef2f7;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.movement-hint-title { font-weight: 800; color: #0f172a; }
+.movement-hint-sub { font-size: 12px; color: #64748b; }
+.movement-hint-strong { color: #0f172a; font-weight: 800; }
+
+/* ========================================= */
+/* ============== TOASTS ================== */
+/* ========================================= */
+.ms-toast-wrap {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  display: grid;
+  gap: 10px;
+  z-index: 80;
+}
+
+.ms-toast {
+  min-width: 260px;
+  max-width: min(420px, calc(100vw - 36px));
+  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.18);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.ms-toast-title { font-weight: 900; color: #0f172a; font-size: 13px; }
+.ms-toast-msg { margin-top: 2px; font-size: 12px; color: #64748b; line-height: 1.35; }
+.ms-toast-success { border-color: rgba(34, 197, 94, 0.25); }
+.ms-toast-error { border-color: rgba(239, 68, 68, 0.25); }
+
+
+/* ========================================= */
+/* ========= RESPONSIVE (MOBILE) =========== */
+/* ========================================= */
+@media (max-width: 1024px) {
+  .ms-scanner-layout {
+    flex-direction: column; /* اليسار و اليمين يطيو تحت بعض */
+  }
+
+  .ms-scanner-left {
+    flex: none;
+    width: 100%;
+    position: static; /* يخلي الـ sticky */
+  }
+
+  .ms-scanner-right {
+    max-height: none; /* يخلي الحد الأقصى ديال الطول باش يطلع كامل */
+    overflow-y: visible; 
+    padding-right: 0;
+  }
+
+  .ms-form-grid {
+    grid-template-columns: 1fr; /* الموتيف و النوت يطيو تحت بعض */
+  }
+
+  .ms-barcode-input {
+    flex-wrap: wrap; /* البوتانات يطيو تحت يلا ضاق */
+  }
+
+  .ms-barcode-input .ms-form-input {
+    min-width: 100%; /* السيرش كيطول مع الشاشة */
+  }
+
+  .ms-btn-ghost, .ms-btn-primary, .ms-btn-danger {
+    flex: 1; /* البوتانات يتقسمو العرض بالمساواة */
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .ms-items-table {
+    min-width: 0;
+  }
+
+  .ms-items-table th:nth-child(2),
+  .ms-items-table td:nth-child(2),
+  .ms-items-table th:nth-child(3),
+  .ms-items-table td:nth-child(3) {
+    display: none;
+  }
+
+  .ms-qty {
+    width: auto;
+  }
+
+  .ms-qty .ms-form-input {
+    width: 100%;
+    text-align: left;
+  }
+
+  .ms-article-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ms-article-meta {
+    gap: 8px;
+  }
+}
