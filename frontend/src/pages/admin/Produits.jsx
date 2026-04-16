@@ -5,11 +5,16 @@ import ProductModal from '../../components/products/ProductModal'
 import ProductRow from '../../components/products/ProductRow'
 import { apiFetch } from '../../lib/api'
 import ProductCard from '../../components/products/ProductCard'
+import Alert from '../../components/Alert'
 import '../../styles/produits.css'
 
 export default function Produits() {
   const { search, setSearch } = useOutletContext()
   const [open, setOpen] = useState(false)
+  const [modalMode, setModalMode] = useState('create')
+  const [editing, setEditing] = useState(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(null)
   const [view, setView] = useState('list')
   const [categoryId, setCategoryId] = useState('all')
 
@@ -18,9 +23,12 @@ export default function Produits() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   async function loadAll() {
     setError('')
+    setSuccess('')
     setLoading(true)
     try {
       const [articlesRes, scRes, catRes] = await Promise.all([
@@ -52,7 +60,11 @@ export default function Produits() {
         unite: a.unite || 'pièce',
         poids: 0,
         prix: Number(a?.prix?.prix_vente ?? 0),
+        prix_achat: Number(a?.prix?.prix_achat ?? 0),
+        prix_id: a?.prix?.id ?? null,
         stock: Number(a?.stock?.quantite ?? 0),
+        stock_id: a?.stock?.id ?? null,
+        seuil_min: Number(a?.stock?.seuil_min ?? 0),
         img: a.image || '/imagelogin.png',
         sous_categorie_id: a.sous_categorie_id,
         categorie_id: (() => {
@@ -83,50 +95,168 @@ export default function Produits() {
     })
   }, [products, search, categoryId])
 
+  function openCreate() {
+    setError('')
+    setSuccess('')
+    setEditing(null)
+    setModalMode('create')
+    setOpen(true)
+  }
+
+  function openEdit(product) {
+    setError('')
+    setSuccess('')
+    setEditing(product)
+    setModalMode('edit')
+    setOpen(true)
+  }
+
+  function askDelete(product) {
+    setError('')
+    setSuccess('')
+    setDeleting(product)
+    setConfirmOpen(true)
+  }
+
   async function addProduct(values) {
-    const code_article = `ART-${Date.now()}`
+    setSubmitting(true)
+    setError('')
+    setSuccess('')
+    try {
+      const code_article = `ART-${Date.now()}`
 
-    const article = await apiFetch('/api/articles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sous_categorie_id: values.sous_categorie_id,
-        code_article,
-        nom: values.nom,
-        unite: 'kg',
-        actif: true,
-      }),
-    })
+      const article = await apiFetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sous_categorie_id: values.sous_categorie_id,
+          code_article,
+          nom: values.nom,
+          unite: values.unite || 'pièce',
+          actif: true,
+        }),
+      })
 
-    await apiFetch('/api/prix_articles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        article_id: article.id,
-        prix_achat: 0,
-        prix_vente: values.prix,
-        prix_gros: null,
-        prix_promo: null,
-      }),
-    })
+      await apiFetch('/api/prix_articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          article_id: article.id,
+          prix_achat: 0,
+          prix_vente: values.prix,
+          prix_gros: null,
+          prix_promo: null,
+        }),
+      })
 
-    await apiFetch('/api/stock', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        article_id: article.id,
-        quantite: values.stock,
-        seuil_min: 0,
-      }),
-    })
+      await apiFetch('/api/stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          article_id: article.id,
+          quantite: values.stock,
+          seuil_min: 0,
+        }),
+      })
 
-    setOpen(false)
-    await loadAll()
+      setOpen(false)
+      setSuccess('Produit ajouté.')
+      await loadAll()
+    } catch (e) {
+      setError(e?.message || 'Erreur')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function updateProduct(values) {
+    if (!editing?.id) return
+    setSubmitting(true)
+    setError('')
+    setSuccess('')
+    try {
+      await apiFetch(`/api/articles/${editing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sous_categorie_id: values.sous_categorie_id,
+          nom: values.nom,
+          unite: values.unite || editing.unite || 'pièce',
+        }),
+      })
+
+      if (editing.prix_id) {
+        await apiFetch(`/api/prix_articles/${editing.prix_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prix_achat: Number(editing.prix_achat ?? 0),
+            prix_vente: values.prix,
+            prix_gros: null,
+            prix_promo: null,
+          }),
+        })
+      } else {
+        await apiFetch('/api/prix_articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            article_id: editing.id,
+            prix_achat: 0,
+            prix_vente: values.prix,
+            prix_gros: null,
+            prix_promo: null,
+          }),
+        })
+      }
+
+      if (editing.stock_id) {
+        await apiFetch(`/api/stock/${editing.stock_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quantite: values.stock,
+            seuil_min: Number(editing.seuil_min ?? 0),
+          }),
+        })
+      } else {
+        await apiFetch('/api/stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            article_id: editing.id,
+            quantite: values.stock,
+            seuil_min: 0,
+          }),
+        })
+      }
+
+      setOpen(false)
+      setSuccess('Produit modifié.')
+      await loadAll()
+    } catch (e) {
+      setError(e?.message || 'Erreur')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   async function deleteProduct(product) {
-    await apiFetch(`/api/articles/${product.id}`, { method: 'DELETE' })
-    await loadAll()
+    if (!product?.id) return
+    setSubmitting(true)
+    setError('')
+    setSuccess('')
+    try {
+      await apiFetch(`/api/articles/${product.id}`, { method: 'DELETE' })
+      setConfirmOpen(false)
+      setDeleting(null)
+      setSuccess('Produit supprimé.')
+      await loadAll()
+    } catch (e) {
+      setError(e?.message || 'Erreur')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -136,7 +266,7 @@ export default function Produits() {
           <div className="page-title">Produits</div>
           <div className="page-subtitle">Gérer le catalogue de produits</div>
         </div>
-        <button className="primary primary-pill" type="button" onClick={() => setOpen(true)}>
+        <button className="primary primary-pill" type="button" onClick={openCreate}>
           <Plus size={16} />
           Ajouter Produit
         </button>
@@ -184,7 +314,8 @@ export default function Produits() {
         </div>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
+      <Alert type="error" message={error} />
+      <Alert type="success" message={success} />
 
       {view === 'list' ? (
         <div className="products-wrap">
@@ -192,7 +323,7 @@ export default function Produits() {
             {loading ? <div className="products-empty">Loading…</div> : null}
             {!loading && filtered.length === 0 ? <div className="products-empty">Aucun produit</div> : null}
             {!loading
-              ? filtered.map((p) => <ProductRow key={p.id} product={p} onDelete={deleteProduct} />)
+              ? filtered.map((p) => <ProductRow key={p.id} product={p} onEdit={openEdit} onDelete={askDelete} />)
               : null}
           </div>
         </div>
@@ -200,16 +331,47 @@ export default function Produits() {
         <div className="grid">
           {loading ? <div className="products-empty">Loading…</div> : null}
           {!loading && filtered.length === 0 ? <div className="products-empty">Aucun produit</div> : null}
-          {!loading ? filtered.map((p) => <ProductCard key={p.id} product={p} onDelete={deleteProduct} />) : null}
+          {!loading ? filtered.map((p) => <ProductCard key={p.id} product={p} onEdit={openEdit} onDelete={askDelete} />) : null}
         </div>
       )}
 
       <ProductModal
         open={open}
+        mode={modalMode}
+        initialValues={modalMode === 'edit' ? editing : null}
         sousCategories={sousCategories}
         onClose={() => setOpen(false)}
-        onSubmit={addProduct}
+        onSubmit={modalMode === 'edit' ? updateProduct : addProduct}
       />
+
+      {confirmOpen ? (
+        <div className="modal-overlay" onMouseDown={() => setConfirmOpen(false)}>
+          <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <div className="modal-title">Supprimer le produit</div>
+            </div>
+            <div className="modal-body">
+              <div className="form-label">{`Voulez-vous supprimer "${deleting?.nom || ''}" ?`}</div>
+              <div className="modal-foot">
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => {
+                    setConfirmOpen(false)
+                    setDeleting(null)
+                  }}
+                  disabled={submitting}
+                >
+                  Annuler
+                </button>
+                <button className="btn-primary" type="button" onClick={() => deleteProduct(deleting)} disabled={submitting}>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }

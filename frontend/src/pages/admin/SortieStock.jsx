@@ -7,6 +7,7 @@ import {
   DecodeHintType,
 } from "@zxing/library";
 import { apiFetch } from "../../lib/api";
+import Alert from "../../components/Alert";
 import "../../styles/mouvements-stock.css";
 
 export default function SortieStock() {
@@ -508,12 +509,12 @@ export default function SortieStock() {
         </button>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
-      {success ? <div className="banner banner-ok">{success}</div> : null}
+      <Alert type="error" message={error} />
+      <Alert type="success" message={success} />
 
       {open ? (
         <div className="modal-overlay" onClick={() => setOpen(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modals" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
               <div className="modal-title">Nouveau Mouvement (Sortie)</div>
               <button

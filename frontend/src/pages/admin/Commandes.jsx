@@ -3,6 +3,8 @@ import { Filter, Eye, Edit, Trash2, X } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { apiFetch } from '../../lib/api'
 import '../../styles/commandes.css'
+import { CSVLink } from 'react-csv'
+import { toast } from '../../components/Alert'
 
 
 
@@ -27,6 +29,7 @@ const Commandes = () => {
   // Edit Form State
   const [editForm, setEditForm] = useState({
     client_id: '',
+    type_commande: 'livraison',
     statut: '',
     total: ''
   });
@@ -43,7 +46,7 @@ const Commandes = () => {
       // Assume API returns array directly or { data: [] }
       setCommandes(data.data || data);
     } catch (error) {
-      console.error("Error fetching commandes:", error);
+      toast({ type: 'error', message: error?.message || 'Erreur de chargement des commandes.' })
     } finally {
       setLoading(false);
     }
@@ -54,7 +57,7 @@ const Commandes = () => {
       const data = await apiFetch('/api/clients');
       setClients(data.data || data);
     } catch (error) {
-      console.error("Error fetching clients:", error);
+      toast({ type: 'error', message: error?.message || 'Erreur de chargement des clients.' })
     }
   };
 
@@ -66,9 +69,14 @@ const Commandes = () => {
 
   const handleEdit = (cmd) => {
     setSelectedCommande(cmd);
+    const rawStatut = (cmd?.statut || '').toString();
+    const s = rawStatut.toLowerCase();
+    const statut =
+      s.includes('pay') || s.includes('livr') ? 'payée' : s.includes('confirm') ? 'confirmée' : s.includes('annul') ? 'annulée' : 'en_attente';
     setEditForm({
       client_id: cmd.client_id || '',
-      statut: cmd.statut || 'En cours',
+      type_commande: (cmd?.type_commande || 'livraison').toString().toLowerCase() === 'retrait' ? 'retrait' : 'livraison',
+      statut,
       total: cmd.total || 0
     });
     setEditModalOpen(true);
@@ -84,12 +92,19 @@ const Commandes = () => {
     try {
       await apiFetch(`/api/commandes_vente/${selectedCommande.id}`, {
         method: 'PUT',
-        body: JSON.stringify(editForm)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: editForm.client_id === '' ? null : Number(editForm.client_id),
+          type_commande: (editForm.type_commande || 'livraison').toString().toLowerCase() === 'retrait' ? 'retrait' : 'livraison',
+          statut: (editForm.statut || '').toString(),
+          total: editForm.total === '' ? 0 : Number(editForm.total),
+        })
       });
       setEditModalOpen(false);
       fetchCommandes();
+      toast({ type: 'success', message: 'Commande mise à jour.' })
     } catch (error) {
-      console.error("Error updating commande:", error);
+      toast({ type: 'error', message: error?.message || 'Impossible de modifier la commande.' })
     }
   };
 
@@ -100,8 +115,9 @@ const Commandes = () => {
       });
       setDeleteModalOpen(false);
       fetchCommandes();
+      toast({ type: 'success', message: 'Commande supprimée.' })
     } catch (error) {
-      console.error("Error deleting commande:", error);
+      toast({ type: 'error', message: error?.message || 'Impossible de supprimer la commande.' })
     }
   };
 
@@ -200,7 +216,12 @@ const Commandes = () => {
         </div>
         
         <div className="toolbar-right">
-          <button className="btn-ghost" type="button">Exporter CSV</button>
+          <button className="btn-ghost" type="button">
+
+               <CSVLink data={filteredCommandes} filename="Commandes.csv" style={{color:'red',textDecoration:'none'}}>
+                          Exporter CSV
+             </CSVLink>
+          </button>
         </div>
       </div>
 
@@ -324,6 +345,18 @@ const Commandes = () => {
                   ))}
                 </select>
               </label>
+
+              <label className="form-label">
+                Type
+                <select
+                  className="form-select"
+                  value={editForm.type_commande}
+                  onChange={(e) => setEditForm({ ...editForm, type_commande: e.target.value })}
+                >
+                  <option value="livraison">Livraison</option>
+                  <option value="retrait">Retrait</option>
+                </select>
+              </label>
               
               <label className="form-label">
                 Statut
@@ -332,9 +365,10 @@ const Commandes = () => {
                   value={editForm.statut}
                   onChange={(e) => setEditForm({...editForm, statut: e.target.value})}
                 >
-                  <option value="En cours">En cours</option>
-                  <option value="Livré">Livré</option>
-                  <option value="Annulé">Annulé</option>
+                  <option value="en_attente">En cours</option>
+                  <option value="confirmée">Confirmée</option>
+                  <option value="payée">Payée</option>
+                  <option value="annulée">Annulée</option>
                 </select>
               </label>
               

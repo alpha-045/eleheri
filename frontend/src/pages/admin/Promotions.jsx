@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 import { CalendarDays, Pencil, Percent, Plus, Tag, Trash2, Truck, X } from 'lucide-react'
+import Alert from '../../components/Alert'
 import '../../styles/promotions.css'
 
 function formatDateRange(start, end) {
@@ -359,7 +360,7 @@ export default function Promotions() {
         </button>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
+      <Alert type="error" message={error} />
 
       <div className="promo-list">
         {loading ? <div className="products-empty">Loading…</div> : null}

@@ -1,25 +1,27 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, X } from 'lucide-react'
 
-export default function ProductModal({ open, sousCategories, onClose, onSubmit }) {
+export default function ProductModal({ open, mode = 'create', initialValues, sousCategories, onClose, onSubmit }) {
   const [nom, setNom] = useState('')
   const [prix, setPrix] = useState('')
   const [stock, setStock] = useState('')
   const [sousCategorieId, setSousCategorieId] = useState('')
+  const [unite, setUnite] = useState('pièce')
   const [file, setFile] = useState(null)
 
   const canSubmit = useMemo(() => {
-    return nom.trim() && prix !== '' && stock !== '' && sousCategorieId
-  }, [nom, prix, stock, sousCategorieId])
+    return nom.trim() && prix !== '' && stock !== '' && sousCategorieId && unite
+  }, [nom, prix, stock, sousCategorieId, unite])
 
   useEffect(() => {
     if (!open) return
-    setNom('')
-    setPrix('')
-    setStock('')
-    setSousCategorieId('')
+    setNom(initialValues?.nom ?? '')
+    setPrix(initialValues?.prix != null ? String(initialValues.prix) : '')
+    setStock(initialValues?.stock != null ? String(initialValues.stock) : '')
+    setSousCategorieId(initialValues?.sous_categorie_id != null ? String(initialValues.sous_categorie_id) : '')
+    setUnite(initialValues?.unite ?? 'pièce')
     setFile(null)
-  }, [open])
+  }, [open, initialValues])
 
   useEffect(() => {
     if (!open) return
@@ -42,6 +44,7 @@ export default function ProductModal({ open, sousCategories, onClose, onSubmit }
       prix: Number(prix),
       stock: Number(stock),
       sous_categorie_id: Number(sousCategorieId),
+      unite,
       file,
     })
   }
@@ -50,7 +53,7 @@ export default function ProductModal({ open, sousCategories, onClose, onSubmit }
     <div className="modal-overlay" onMouseDown={onClose}>
       <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <div className="modal-title">Ajouter un nouveau produit</div>
+          <div className="modal-title">{mode === 'edit' ? 'Modifier le produit' : 'Ajouter un nouveau produit'}</div>
           <button className="modal-x" type="button" onClick={onClose} aria-label="Fermer">
             <X size={18} />
           </button>
@@ -64,7 +67,7 @@ export default function ProductModal({ open, sousCategories, onClose, onSubmit }
 
           <div className="form-grid">
             <label className="form-label">
-              Prix (DH/kg)
+              Prix (DH)
               <input
                 className="form-input form-input-muted"
                 inputMode="decimal"
@@ -74,7 +77,7 @@ export default function ProductModal({ open, sousCategories, onClose, onSubmit }
               />
             </label>
             <label className="form-label">
-              Stock (kg)
+              Stock
               <input
                 className="form-input form-input-muted"
                 inputMode="numeric"
@@ -84,6 +87,19 @@ export default function ProductModal({ open, sousCategories, onClose, onSubmit }
               />
             </label>
           </div>
+
+          <label className="form-label">
+            Unité
+            <div className="select-wrap">
+              <select className="form-select" value={unite} onChange={(e) => setUnite(e.target.value)}>
+                <option value="pièce">pièce</option>
+                <option value="kg">kg</option>
+                <option value="L">L</option>
+                <option value="m">m</option>
+              </select>
+              <ChevronDown className="select-ico" size={16} />
+            </div>
+          </label>
 
           <label className="form-label">
             Catégorie
@@ -123,7 +139,7 @@ export default function ProductModal({ open, sousCategories, onClose, onSubmit }
               Annuler
             </button>
             <button className="btn-primary" type="submit" disabled={!canSubmit}>
-              Ajouter
+              {mode === 'edit' ? 'Enregistrer' : 'Ajouter'}
             </button>
           </div>
         </form>

@@ -7,6 +7,7 @@ import {
   DecodeHintType,
 } from "@zxing/library";
 import { apiFetch } from "../../lib/api";
+import Alert from "../../components/Alert";
 import "../../styles/mouvements-stock.css";
 
 export default function EntreeStock() {
@@ -472,8 +473,8 @@ export default function EntreeStock() {
         </button>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
-      {success ? <div className="banner banner-ok">{success}</div> : null}
+      <Alert type="error" message={error} />
+      <Alert type="success" message={success} />
 
       {open ? (
         <div className="modal-overlay" onClick={() => setOpen(false)}>

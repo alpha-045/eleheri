@@ -3,6 +3,7 @@ import { Pencil, Plus, Search, X } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import { apiFetch } from "../../lib/api";
 import { CSVLink } from "react-csv";
+import Alert from "../../components/Alert";
 import "../../styles/prix.css";
 
 export default function Prix() {
@@ -153,7 +154,6 @@ export default function Prix() {
           className="primary primary-pill"
           type="button"
           onClick={openCreate}
-          disabled={missingArticles.length === 0}
         >
           <Plus size={16} />
           Ajouter
@@ -193,7 +193,7 @@ export default function Prix() {
         </div>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
+      <Alert type="error" message={error} />
 
       <div className="orders-card">
         <div className="orders-card-head">
@@ -289,6 +289,7 @@ export default function Prix() {
               </button>
             </div>
             <form className="modal-body" onSubmit={submit}>
+              <Alert type="error" message={error} />
               <label className="form-label">
                 Article
                 <select
@@ -301,6 +302,9 @@ export default function Prix() {
                   required
                 >
                   <option value="">Sélectionner un article</option>
+                  {creating && missingArticles.length === 0 && (
+                    <option value="" disabled>Tous les articles ont déjà un prix</option>
+                  )}
                   {(creating ? missingArticles : articles).map((a) => (
                     <option key={a.id} value={a.id}>
                       {a.code_article ? `${a.code_article} — ` : ""}

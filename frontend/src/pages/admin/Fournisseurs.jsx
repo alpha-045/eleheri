@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { CSVLink } from "react-csv";
 
 import { apiFetch } from "../../lib/api";
+import Alert from "../../components/Alert";
 import "../../styles/fournisseurs.css";
 
 export default function Fournisseurs() {
@@ -165,7 +166,7 @@ export default function Fournisseurs() {
         </div>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
+      <Alert type="error" message={error} />
 
       <div className="orders-card">
         <div className="orders-card-head">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\CommandeAchatController;
 use App\Http\Controllers\Api\CommandeVenteController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FournisseurController;
 use App\Http\Controllers\Api\HistoriqueActionController;
 use App\Http\Controllers\Api\LigneCommandeAchatController;
@@ -32,6 +33,8 @@ Route::prefix('auth')->group(function () {
 Route::middleware(['auth:sanctum', 'role:admin'])->get('admin/dashboard', fn() => response()->json([
     'message' => 'hi admin',
 ]));
+
+Route::middleware(['auth:sanctum', 'role:admin'])->get('admin/dashboard/stats', [DashboardController::class, 'stats']);
 
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('utilisateurs', UtilisateurController::class);

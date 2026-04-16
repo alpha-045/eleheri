@@ -22,6 +22,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -46,22 +47,48 @@ class DatabaseSeeder extends Seeder
         $vendeurRoleId = DB::table('roles')->where('nom', 'vendeur')->value('id');
         $magasinierRoleId = DB::table('roles')->where('nom', 'magasinier')->value('id');
 
-        $admin = User::factory()->create([
-            'role_id' => $adminRoleId,
-            'nom' => 'Test',
-            'prenom' => 'User',
-            'email' => 'test@example.com',
-        ]);
+        User::query()->updateOrCreate(
+            ['email' => 'admin@elherii.ma'],
+            [
+                'role_id' => $adminRoleId,
+                'nom' => 'Admin',
+                'prenom' => 'El Herri',
+                'mot_de_passe' => Hash::make('password'),
+                'actif' => true,
+            ]
+        );
 
-        $vendeur = User::factory()->create([
-            'role_id' => $vendeurRoleId,
-            'email' => 'vendeur@example.com',
-        ]);
+        $vendeur = User::query()->updateOrCreate(
+            ['email' => 'vendeur@example.com'],
+            [
+                'role_id' => $vendeurRoleId,
+                'nom' => 'Vendeur',
+                'prenom' => 'Test',
+                'mot_de_passe' => Hash::make('password'),
+                'actif' => true,
+            ]
+        );
 
-        $magasinier = User::factory()->create([
-            'role_id' => $magasinierRoleId,
-            'email' => 'magasinier@example.com',
-        ]);
+        $magasinier = User::query()->updateOrCreate(
+            ['email' => 'magasinier@example.com'],
+            [
+                'role_id' => $magasinierRoleId,
+                'nom' => 'Magasin',
+                'prenom' => 'ier',
+                'mot_de_passe' => Hash::make('password'),
+                'actif' => true,
+            ]
+        );
+
+        if (
+            Category::query()->exists() ||
+            SousCategorie::query()->exists() ||
+            Article::query()->exists() ||
+            Client::query()->exists() ||
+            Fournisseur::query()->exists()
+        ) {
+            return;
+        }
 
         $categories = collect();
         $sousCategories = collect();

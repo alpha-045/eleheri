@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FolderTree, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
+import Alert from '../../components/Alert'
 import '../../styles/categories.css'
 
 const EMOJI_KEY = 'gs_category_emoji'
@@ -166,7 +167,7 @@ export default function Categories() {
         </button>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
+      <Alert type="error" message={error} />
 
       <div className="cat-grid">
         {loading ? <div className="products-empty">Loading…</div> : null}

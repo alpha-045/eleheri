@@ -3,6 +3,7 @@ import { Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { useOutletContext } from 'react-router-dom'
 import { apiFetch } from '../../lib/api'
 import { CSVLink } from 'react-csv'
+import Alert from '../../components/Alert'
 import '../../styles/clients.css'
 
 export default function Clients() {
@@ -175,7 +176,7 @@ export default function Clients() {
         </div>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
+      <Alert type="error" message={error} />
 
       <div className="orders-card">
         <div className="orders-card-head">

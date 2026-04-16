@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
+import Alert from '../../components/Alert'
 import '../../styles/account.css'
 
 export default function Account() {
@@ -73,8 +74,8 @@ export default function Account() {
             />
           </label>
 
-          {message ? <div className="banner banner-ok">{message}</div> : null}
-          {error ? <div className="banner banner-err">{error}</div> : null}
+          <Alert type="success" message={message} />
+          <Alert type="error" message={error} />
 
           <div className="account-actions">
             <button className="btn-primary" type="submit" disabled={saving}>

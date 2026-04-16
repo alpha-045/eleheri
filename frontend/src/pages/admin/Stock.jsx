@@ -3,6 +3,7 @@ import { Minus, Pencil, Plus, Search, X } from 'lucide-react'
 import { useOutletContext } from 'react-router-dom'
 import { apiFetch } from '../../lib/api'
 import { CSVLink } from 'react-csv'
+import Alert from '../../components/Alert'
 import '../../styles/stock.css'
 
 export default function Stock() {
@@ -242,8 +243,8 @@ export default function Stock() {
         </div>
       </div>
 
-      {error ? <div className="banner banner-err">{error}</div> : null}
-      {success ? <div className="banner banner-ok">{success}</div> : null}
+      <Alert type="error" message={error} />
+      <Alert type="success" message={success} />
 
       <div className="orders-card">
         <div className="orders-card-head">

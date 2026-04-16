@@ -30,9 +30,14 @@ export async function apiFetch(path, options = {}) {
   const payload = isJson ? await res.json().catch(() => null) : await res.text()
 
   if (!res.ok) {
-    const message =
+    let message =
       (payload && typeof payload === 'object' && payload.message) ||
       `HTTP ${res.status}`
+
+    if (typeof message === 'string' && (message.includes('SQLSTATE[23000]') || message.includes('Integrity constraint violation'))) {
+      message = "Impossible d'effectuer cette opération : cet élément est lié à d'autres enregistrements."
+    }
+
     const err = new Error(message)
     err.status = res.status
     err.payload = payload

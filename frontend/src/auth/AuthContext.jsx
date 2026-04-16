@@ -29,13 +29,9 @@ export function AuthProvider({ children }) {
     }
 
     if (token === FAKE_TOKEN) {
-      try {
-        setUser(JSON.parse(raw))
-      } catch {
-        setToken(null)
-        localStorage.removeItem(USER_KEY)
-        setUser(null)
-      }
+      setToken(null)
+      localStorage.removeItem(USER_KEY)
+      setUser(null)
       setLoading(false)
       return
     }
@@ -60,37 +56,18 @@ export function AuthProvider({ children }) {
   const login = useCallback(async ({ email, password }) => {
     if (!email) throw new Error('Email requis')
     if (!password) throw new Error('Mot de passe requis')
-    try {
-      const data = await apiFetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      setToken(data.token)
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user))
-      setUser(data.user)
-      return data.user
-    } catch (e) {
-      if (password !== 'password') throw e
-    }
-
-    const fakeUser = {
-      id: 1,
-      nom: 'Omar',
-      prenom: 'B.',
-      email,
-      role: {
-        nom: 'admin',
+    const data = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }
+      body: JSON.stringify({ email, password }),
+    })
 
-    setToken(FAKE_TOKEN)
-    localStorage.setItem(USER_KEY, JSON.stringify(fakeUser))
-    setUser(fakeUser)
-    return fakeUser
+    setToken(data.token)
+    localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+    setUser(data.user)
+    return data.user
   }, [])
 
   const logout = useCallback(async () => {
@@ -115,15 +92,7 @@ export function AuthProvider({ children }) {
       const token = getToken()
 
       if (!token || token === FAKE_TOKEN) {
-        const next = {
-          ...user,
-          nom: nom ?? user.nom,
-          prenom: prenom ?? user.prenom,
-          email: email ?? user.email,
-        }
-        localStorage.setItem(USER_KEY, JSON.stringify(next))
-        setUser(next)
-        return next
+        throw new Error('Session expirée. Reconnecte-toi.')
       }
 
       const payload = {}

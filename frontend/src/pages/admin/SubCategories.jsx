@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Plus, Trash2, X } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
+import Alert from '../../components/Alert'
 import '../../styles/categories.css'
 
 function SubCategoryModal({ open, onClose, onSubmit }) {
@@ -131,7 +132,7 @@ export default function SubCategories() {
       </div>
 
       <div className="cat-grid">
-        {error ? <div className="banner banner-err">{error}</div> : null}
+        <Alert type="error" message={error} />
         {loading ? <div className="products-empty">Loading…</div> : null}
         {!loading &&
           subCategories.map((s) => (

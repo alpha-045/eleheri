@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
+import { ToastViewport } from '../Alert'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 
@@ -33,6 +34,7 @@ export default function AdminLayout() {
         />
         <Outlet context={{ search, setSearch }} />
       </main>
+      <ToastViewport />
     </div>
   )
 }
