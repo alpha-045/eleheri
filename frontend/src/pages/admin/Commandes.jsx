@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import { apiFetch } from '../../lib/api'
 import '../../styles/commandes.css'
 import { CSVLink } from 'react-csv'
-import { toast } from '../../components/Alert'
+import { toast } from '../../lib/toast'
 
 
 
@@ -15,14 +15,15 @@ const Commandes = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Filters
+  //Filters
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   
-  // Modals
+  //Modals
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  
   
   const [selectedCommande, setSelectedCommande] = useState(null);
   

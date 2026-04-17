@@ -34,6 +34,15 @@ export async function apiFetch(path, options = {}) {
       (payload && typeof payload === 'object' && payload.message) ||
       `HTTP ${res.status}`
 
+    if (res.status === 422 && payload && typeof payload === 'object') {
+      const errors = payload.errors && typeof payload.errors === 'object' ? payload.errors : null
+      if (errors) {
+        const firstField = Object.keys(errors)[0]
+        const firstMsg = Array.isArray(errors[firstField]) ? errors[firstField][0] : errors[firstField]
+        if (firstMsg) message = String(firstMsg)
+      }
+    }
+
     if (typeof message === 'string' && (message.includes('SQLSTATE[23000]') || message.includes('Integrity constraint violation'))) {
       message = "Impossible d'effectuer cette opération : cet élément est lié à d'autres enregistrements."
     }

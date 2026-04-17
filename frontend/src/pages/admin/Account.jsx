@@ -37,7 +37,7 @@ export default function Account() {
   }
 
   return (
-    <section className="content">
+    <section className="content-account">
       <div className="page-head">
         <div>
           <div className="page-title">Mon compte</div>

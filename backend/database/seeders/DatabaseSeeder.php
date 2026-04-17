@@ -38,6 +38,8 @@ class DatabaseSeeder extends Seeder
                 ['nom' => 'admin', 'description' => null, 'created_at' => $now, 'updated_at' => $now],
                 ['nom' => 'vendeur', 'description' => null, 'created_at' => $now, 'updated_at' => $now],
                 ['nom' => 'magasinier', 'description' => null, 'created_at' => $now, 'updated_at' => $now],
+                ['nom' => 'agent', 'description' => null, 'created_at' => $now, 'updated_at' => $now],
+                ['nom' => 'livreur', 'description' => null, 'created_at' => $now, 'updated_at' => $now],
             ],
             ['nom'],
             ['updated_at']
@@ -46,8 +48,10 @@ class DatabaseSeeder extends Seeder
         $adminRoleId = DB::table('roles')->where('nom', 'admin')->value('id');
         $vendeurRoleId = DB::table('roles')->where('nom', 'vendeur')->value('id');
         $magasinierRoleId = DB::table('roles')->where('nom', 'magasinier')->value('id');
+        $agentRoleId = DB::table('roles')->where('nom', 'agent')->value('id');
+        $livreurRoleId = DB::table('roles')->where('nom', 'livreur')->value('id');
 
-        User::query()->updateOrCreate(
+        $admin = User::query()->updateOrCreate(
             ['email' => 'admin@elherii.ma'],
             [
                 'role_id' => $adminRoleId,
@@ -75,6 +79,28 @@ class DatabaseSeeder extends Seeder
                 'role_id' => $magasinierRoleId,
                 'nom' => 'Magasin',
                 'prenom' => 'ier',
+                'mot_de_passe' => Hash::make('password'),
+                'actif' => true,
+            ]
+        );
+
+        User::query()->updateOrCreate(
+            ['email' => 'agent@example.com'],
+            [
+                'role_id' => $agentRoleId,
+                'nom' => 'Agent',
+                'prenom' => 'Test',
+                'mot_de_passe' => Hash::make('password'),
+                'actif' => true,
+            ]
+        );
+
+        User::query()->updateOrCreate(
+            ['email' => 'livreur@example.com'],
+            [
+                'role_id' => $livreurRoleId,
+                'nom' => 'Livreur',
+                'prenom' => 'Test',
                 'mot_de_passe' => Hash::make('password'),
                 'actif' => true,
             ]

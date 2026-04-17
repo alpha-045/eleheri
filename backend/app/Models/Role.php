@@ -12,6 +12,11 @@ class Role extends Model
     protected $fillable = [
         'nom',
         'description',
+        'permissions',
+    ];
+
+    protected $casts = [
+        'permissions' => 'array',
     ];
 
     public function utilisateurs(): HasMany
@@ -19,4 +24,3 @@ class Role extends Model
         return $this->hasMany(Utilisateur::class, 'role_id');
     }
 }
-

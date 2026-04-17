@@ -1,6 +1,7 @@
-import { Bell, ChevronDown, LogOut, Menu, Search, Settings2, User } from 'lucide-react'
+import { ChevronDown, LogOut, Menu, Search, Settings2, User } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import NotificationBell from '../notifications/NotificationBell'
 
 export default function Topbar({ user, search, onSearchChange, onLogout, onToggleSidebar }) {
   const [open, setOpen] = useState(false)
@@ -32,9 +33,7 @@ export default function Topbar({ user, search, onSearchChange, onLogout, onToggl
       </div>
 
       <div className="topbar-actions">
-        <button className="icon-btn" type="button" aria-label="Notifications">
-          <Bell size={18} color="#64748b" />
-        </button>
+        <NotificationBell />
 
         <div className="account" ref={ref}>
           <button className="user-chip" type="button" onClick={() => setOpen((v) => !v)}>

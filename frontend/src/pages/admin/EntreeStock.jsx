@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, Pencil, Plus, X } from "lucide-react";
+import { Camera, Check, Pencil, Plus, X } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import {
   BarcodeFormat,
@@ -8,13 +8,16 @@ import {
 } from "@zxing/library";
 import { apiFetch } from "../../lib/api";
 import Alert from "../../components/Alert";
+import ProductModal from "../../components/products/ProductModal";
 import "../../styles/mouvements-stock.css";
+import "../../styles/produits.css";
 
 export default function EntreeStock() {
   const outlet = useOutletContext() || {};
   const search = (outlet.search || outlet.searchQuery || "").toString();
 
   const [articles, setArticles] = useState([]);
+  const [sousCategories, setSousCategories] = useState([]);
   const [stocks, setStocks] = useState([]);
   const [mouvements, setMouvements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +28,9 @@ export default function EntreeStock() {
   const [mode, setMode] = useState("scan");
 
   const [toast, setToast] = useState(null);
+  const [missingCode, setMissingCode] = useState("");
+  const [askAddOpen, setAskAddOpen] = useState(false);
+  const [addProductOpen, setAddProductOpen] = useState(false);
 
   const [barcode, setBarcode] = useState("");
   const [cameraError, setCameraError] = useState("");
@@ -50,10 +56,11 @@ export default function EntreeStock() {
     setLoading(true);
     setError("");
     try {
-      const [articlesRes, stockRes, mouvRes] = await Promise.all([
+      const [articlesRes, stockRes, mouvRes, scRes] = await Promise.all([
         apiFetch("/api/articles?per_page=100"),
         apiFetch("/api/stock?per_page=100"),
         apiFetch("/api/mouvements_stock?per_page=100"),
+        apiFetch("/api/sous_categories?per_page=200"),
       ]);
 
       const a = Array.isArray(articlesRes?.data)
@@ -65,10 +72,12 @@ export default function EntreeStock() {
       const m = Array.isArray(mouvRes?.data)
         ? mouvRes.data
         : mouvRes?.data?.data || [];
+      const sc = Array.isArray(scRes?.data) ? scRes.data : scRes?.data?.data || [];
 
       setArticles(a);
       setStocks(s);
       setMouvements(m);
+      setSousCategories(sc);
     } catch (e) {
       setError(e?.message || "Erreur");
     } finally {
@@ -287,6 +296,9 @@ export default function EntreeStock() {
 
     const a = articleByCode.get(code);
     if (!a) {
+      stopScanner();
+      setMissingCode(code);
+      setAskAddOpen(true);
       showToast({
         type: "error",
         title: "Code-barres introuvable",
@@ -328,6 +340,68 @@ export default function EntreeStock() {
     onBarcode._t = window.setTimeout(() => {
       if (open && mode === "scan") startScanner();
     }, 650);
+  }
+
+  async function createProduct(values) {
+    setSubmitting(true);
+    setError("");
+    try {
+      const form = new FormData();
+      form.append("sous_categorie_id", String(values.sous_categorie_id));
+      form.append("code_article", String(values.code_article || ""));
+      form.append("nom", String(values.nom || ""));
+      form.append("unite", String(values.unite || "pièce"));
+      form.append("actif", "1");
+      if (values?.file) form.append("image", values.file);
+
+      const article = await apiFetch("/api/articles", {
+        method: "POST",
+        body: form,
+      });
+
+      await apiFetch("/api/prix_articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          article_id: article.id,
+          prix_achat: 0,
+          prix_vente: Number(values.prix || 0),
+          prix_gros: null,
+          prix_promo: null,
+        }),
+      });
+
+      await apiFetch("/api/stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          article_id: article.id,
+          quantite: 0,
+          seuil_min: Number(values.seuil_min || 0),
+        }),
+      });
+
+      setAddProductOpen(false);
+      setAskAddOpen(false);
+      setMissingCode("");
+      showToast({
+        type: "success",
+        title: "Produit créé",
+        message: `${article.nom}`,
+      });
+      await loadAll();
+      setBarcode(String(article.code_article || ""));
+      onBarcode(String(article.code_article || ""));
+    } catch (e) {
+      setError(e?.message || "Erreur");
+      showToast({
+        type: "error",
+        title: "Création impossible",
+        message: e?.message || "Erreur",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   async function validateBatch() {
@@ -662,13 +736,17 @@ export default function EntreeStock() {
                             onChange={(e) => {
                               const val = e.target.value;
                               setBarcode(val);
-                              // Auto search when barcode is typed or scanned
-                              if (val.length >= 3) {
-                                onBarcode(val);
-                              }
                             }}
                             placeholder="Code-barres (EAN, Code128, QR…)"
                           />
+                          <button
+                            className="ms-btn-primary"
+                            type="button"
+                            onClick={() => onBarcode(barcode)}
+                            disabled={submitting || loading || !barcode.trim()}
+                          >
+                            <Check size={16} /> Valider
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -887,6 +965,60 @@ export default function EntreeStock() {
           </div>
         )}
       </div>
+
+      {askAddOpen ? (
+        <div className="modal-overlay" onClick={() => setAskAddOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <div className="modal-title">Code-barres introuvable</div>
+              <button className="modal-x" type="button" onClick={() => setAskAddOpen(false)} aria-label="Fermer">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-label">{`Le code ${missingCode} n'existe pas dans la base.`}</div>
+              <div className="modal-foot">
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => {
+                    setAskAddOpen(false);
+                    setMissingCode("");
+                    if (open && mode === "scan") startScanner();
+                  }}
+                  disabled={submitting}
+                >
+                  Non
+                </button>
+                <button
+                  className="btn-primary"
+                  type="button"
+                  onClick={() => {
+                    setAskAddOpen(false);
+                    setAddProductOpen(true);
+                  }}
+                  disabled={submitting}
+                >
+                  Ajouter produit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <ProductModal
+        open={addProductOpen}
+        mode="create"
+        initialValues={missingCode ? { code_article: missingCode } : null}
+        sousCategories={sousCategories}
+        onClose={() => {
+          setAddProductOpen(false);
+          setMissingCode("");
+          if (open && mode === "scan") startScanner();
+        }}
+        onSubmit={createProduct}
+      />
 
       {toast ? (
         <div className="ms-toast-wrap">

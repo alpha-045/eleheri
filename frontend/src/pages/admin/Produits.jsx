@@ -6,6 +6,7 @@ import ProductRow from '../../components/products/ProductRow'
 import { apiFetch } from '../../lib/api'
 import ProductCard from '../../components/products/ProductCard'
 import Alert from '../../components/Alert'
+import { toast } from '../../lib/toast'
 import '../../styles/produits.css'
 
 export default function Produits() {
@@ -49,6 +50,7 @@ export default function Produits() {
       const articles = Array.isArray(articlesRes?.data) ? articlesRes.data : articlesRes?.data?.data || []
       const mapped = articles.map((a) => ({
         id: a.id,
+        code_article: a.code_article,
         nom: a.nom,
         subCategoryName: a?.sous_categorie?.nom || a?.sousCategorie?.nom || '',
         categoryName: (() => {
@@ -123,18 +125,19 @@ export default function Produits() {
     setError('')
     setSuccess('')
     try {
-      const code_article = `ART-${Date.now()}`
+      const code_article = (values?.code_article || '').toString().trim() || `ART-${Date.now()}`
+
+      const form = new FormData()
+      form.append('sous_categorie_id', String(values.sous_categorie_id))
+      form.append('code_article', code_article)
+      form.append('nom', values.nom)
+      form.append('unite', values.unite || 'pièce')
+      form.append('actif', '1')
+      if (values?.file) form.append('image', values.file)
 
       const article = await apiFetch('/api/articles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sous_categorie_id: values.sous_categorie_id,
-          code_article,
-          nom: values.nom,
-          unite: values.unite || 'pièce',
-          actif: true,
-        }),
+        body: form,
       })
 
       await apiFetch('/api/prix_articles', {
@@ -154,16 +157,19 @@ export default function Produits() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           article_id: article.id,
-          quantite: values.stock,
-          seuil_min: 0,
+          quantite: 0,
+          seuil_min: values.seuil_min,
         }),
       })
 
       setOpen(false)
       setSuccess('Produit ajouté.')
+      toast({ type: 'success', message: 'Produit ajouté.' })
       await loadAll()
     } catch (e) {
-      setError(e?.message || 'Erreur')
+      const msg = e?.message || 'Erreur'
+      setError(msg)
+      toast({ type: 'error', message: msg })
     } finally {
       setSubmitting(false)
     }
@@ -175,15 +181,33 @@ export default function Produits() {
     setError('')
     setSuccess('')
     try {
-      await apiFetch(`/api/articles/${editing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sous_categorie_id: values.sous_categorie_id,
-          nom: values.nom,
-          unite: values.unite || editing.unite || 'pièce',
-        }),
-      })
+      const nextCode = (values?.code_article || '').toString().trim() || editing.code_article
+
+      if (values?.file) {
+        const form = new FormData()
+        form.append('_method', 'PUT')
+        form.append('sous_categorie_id', String(values.sous_categorie_id))
+        form.append('code_article', nextCode)
+        form.append('nom', values.nom)
+        form.append('unite', values.unite || editing.unite || 'pièce')
+        form.append('image', values.file)
+
+        await apiFetch(`/api/articles/${editing.id}`, {
+          method: 'POST',
+          body: form,
+        })
+      } else {
+        await apiFetch(`/api/articles/${editing.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sous_categorie_id: values.sous_categorie_id,
+            code_article: nextCode,
+            nom: values.nom,
+            unite: values.unite || editing.unite || 'pièce',
+          }),
+        })
+      }
 
       if (editing.prix_id) {
         await apiFetch(`/api/prix_articles/${editing.prix_id}`, {
@@ -215,8 +239,8 @@ export default function Produits() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            quantite: values.stock,
-            seuil_min: Number(editing.seuil_min ?? 0),
+            quantite: Number(editing.stock ?? 0),
+            seuil_min: values.seuil_min,
           }),
         })
       } else {
@@ -225,17 +249,20 @@ export default function Produits() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             article_id: editing.id,
-            quantite: values.stock,
-            seuil_min: 0,
+            quantite: 0,
+            seuil_min: values.seuil_min,
           }),
         })
       }
 
       setOpen(false)
       setSuccess('Produit modifié.')
+      toast({ type: 'success', message: 'Produit modifié.' })
       await loadAll()
     } catch (e) {
-      setError(e?.message || 'Erreur')
+      const msg = e?.message || 'Erreur'
+      setError(msg)
+      toast({ type: 'error', message: msg })
     } finally {
       setSubmitting(false)
     }
@@ -251,9 +278,12 @@ export default function Produits() {
       setConfirmOpen(false)
       setDeleting(null)
       setSuccess('Produit supprimé.')
+      toast({ type: 'success', message: 'Produit supprimé.' })
       await loadAll()
     } catch (e) {
-      setError(e?.message || 'Erreur')
+      const msg = e?.message || 'Erreur'
+      setError(msg)
+      toast({ type: 'error', message: msg })
     } finally {
       setSubmitting(false)
     }
@@ -314,8 +344,6 @@ export default function Produits() {
         </div>
       </div>
 
-      <Alert type="error" message={error} />
-      <Alert type="success" message={success} />
 
       {view === 'list' ? (
         <div className="products-wrap">

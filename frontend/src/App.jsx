@@ -12,20 +12,29 @@ import Commandes from './pages/admin/Commandes'
 import Dashboard from './pages/admin/Dashboard'
 import EntreeStock from './pages/admin/EntreeStock'
 import Fournisseurs from './pages/admin/Fournisseurs'
+import Agents from './pages/admin/Agents'
+import Livreurs from './pages/admin/Livreurs'
 import Placeholder from './pages/admin/Placeholder'
 import Prix from './pages/admin/Prix'
 import Produits from './pages/admin/Produits'
 import Promotions from './pages/admin/Promotions'
+import Roles from './pages/admin/Roles'
 import SortieStock from './pages/admin/SortieStock'
 import Stock from './pages/admin/Stock'
 import SubCategories from './pages/admin/SubCategories'
+import Utilisateurs from './pages/admin/Utilisateurs'
 import Ventes from './pages/admin/Ventes'
 
 function RootRedirect() {
-  const { user, loading } = useAuth()
+  const { user, loading, hasAnyPermission } = useAuth()
   if (loading) return <div className="page">Loading…</div>
 
-  if ((user?.role?.nom || '') === 'admin') return <Navigate to="/admin/produits" replace />
+  if (user) {
+    if (hasAnyPermission(['produits.view', 'produits.create', 'produits.edit'])) return <Navigate to="/admin/produits" replace />
+    if (hasAnyPermission(['commandes.view', 'commandes.edit'])) return <Navigate to="/admin/commandes" replace />
+    if (hasAnyPermission(['categories.view', 'categories.manage'])) return <Navigate to="/admin/categories" replace />
+    return <Navigate to="/admin/account" replace />
+  }
 
   return <Navigate to="/login" replace />
 }
@@ -57,10 +66,10 @@ function App() {
           <Route path="prix" element={<Prix />} />
 
           {/* ── GESTION ÉQUIPE ── */}
-          <Route path="utilisateurs" element={<Placeholder title="Utilisateurs" subtitle="Gestion des utilisateurs" />} />
-          <Route path="livreurs" element={<Placeholder title="Livreurs" subtitle="Gestion des livreurs" />} />
-          <Route path="agents" element={<Placeholder title="Agents" subtitle="Gestion des agents" />} />
-          <Route path="roles" element={<Placeholder title="Rôles & Permissions" subtitle="Gestion des rôles" />} />
+          <Route path="utilisateurs" element={<Utilisateurs />} />
+          <Route path="livreurs" element={<Livreurs />} />
+          <Route path="agents" element={<Agents />} />
+          <Route path="roles" element={<Roles />} />
           <Route path="promotions" element={<Promotions />} />
 
           {/* ── SYSTÈME ── */}

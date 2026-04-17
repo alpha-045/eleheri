@@ -122,6 +122,21 @@ export function AuthProvider({ children }) {
       logout,
       refresh,
       updateProfile,
+      hasPermission: (key) => {
+        const perm = (key || '').toString()
+        if (!perm) return true
+        const roleName = (user?.role?.nom || '').toString().toLowerCase()
+        if (roleName === 'admin') return true
+        const list = Array.isArray(user?.role?.permissions) ? user.role.permissions.map(String) : []
+        return list.includes(perm)
+      },
+      hasAnyPermission: (keys) => {
+        const roleName = (user?.role?.nom || '').toString().toLowerCase()
+        if (roleName === 'admin') return true
+        const list = Array.isArray(user?.role?.permissions) ? user.role.permissions.map(String) : []
+        const arr = Array.isArray(keys) ? keys : []
+        return arr.some((k) => list.includes(String(k)))
+      },
     }),
     [user, loading, login, logout, refresh, updateProfile]
   )

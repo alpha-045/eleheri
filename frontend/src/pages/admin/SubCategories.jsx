@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Plus, Trash2, X } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
@@ -53,6 +53,16 @@ export default function SubCategories() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const errTimerRef = useRef(null)
+
+  function showTempError(message) {
+    const msg = (message || '').toString()
+    if (!msg) return
+    setError(msg)
+    if (errTimerRef.current) window.clearTimeout(errTimerRef.current)
+    errTimerRef.current = window.setTimeout(() => setError(''), 3800)
+  }
+
   async function load() {
     setError('')
     setLoading(true)
@@ -85,6 +95,12 @@ export default function SubCategories() {
     load()
   }, [categoryId])
 
+  useEffect(() => {
+    return () => {
+      if (errTimerRef.current) window.clearTimeout(errTimerRef.current)
+    }
+  }, [])
+
   const totals = useMemo(() => {
     const totalSous = subCategories.length
     const totalProduits = subCategories.reduce((sum, s) => sum + s.produits, 0)
@@ -106,8 +122,12 @@ export default function SubCategories() {
   }
 
   async function deleteSub(s) {
-    await apiFetch(`/api/sous_categories/${s.id}`, { method: 'DELETE' })
-    await load()
+    try {
+      await apiFetch(`/api/sous_categories/${s.id}`, { method: 'DELETE' })
+      await load()
+    } catch (e) {
+      showTempError(e?.message || 'Erreur')
+    }
   }
 
   return (

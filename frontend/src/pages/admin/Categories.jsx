@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FolderTree, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
@@ -27,9 +27,15 @@ function pickEmoji() {
   return list[Math.floor(Math.random() * list.length)]
 }
 
-function CategoryModal({ open, onClose, onSubmit }) {
+function CategoryModal({ open, mode = 'create', initialValues, onClose, onSubmit }) {
   const [nom, setNom] = useState('')
   const [emoji, setEmoji] = useState('🍞')
+
+  useEffect(() => {
+    if (!open) return
+    setNom(initialValues?.nom ?? '')
+    setEmoji(initialValues?.emoji ?? '🍞')
+  }, [open, initialValues])
 
   if (!open) return null
 
@@ -45,7 +51,7 @@ function CategoryModal({ open, onClose, onSubmit }) {
     <div className="modal-overlay" onMouseDown={onClose}>
       <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <div className="modal-title">Ajouter une catégorie</div>
+          <div className="modal-title">{mode === 'edit' ? 'Modifier la catégorie' : 'Ajouter une catégorie'}</div>
           <button className="modal-x" type="button" onClick={onClose} aria-label="Fermer">
             <X size={18} />
           </button>
@@ -64,7 +70,7 @@ function CategoryModal({ open, onClose, onSubmit }) {
               Annuler
             </button>
             <button className="btn-primary" type="submit" disabled={!nom.trim()}>
-              Ajouter
+              {mode === 'edit' ? 'Enregistrer' : 'Ajouter'}
             </button>
           </div>
         </form>
@@ -76,10 +82,21 @@ function CategoryModal({ open, onClose, onSubmit }) {
 export default function Categories() {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [editing, setEditing] = useState(null)
 
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const errTimerRef = useRef(null)
+
+  function showTempError(message) {
+    const msg = (message || '').toString()
+    if (!msg) return
+    setError(msg)
+    if (errTimerRef.current) window.clearTimeout(errTimerRef.current)
+    errTimerRef.current = window.setTimeout(() => setError(''), 3800)
+  }
 
   async function load() {
     setError('')
@@ -121,6 +138,12 @@ export default function Categories() {
     load()
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (errTimerRef.current) window.clearTimeout(errTimerRef.current)
+    }
+  }, [])
+
   const totals = useMemo(() => {
     const totalCategories = categories.length
     const totalProduits = categories.reduce((sum, c) => sum + c.produits, 0)
@@ -149,9 +172,37 @@ export default function Categories() {
     await load()
   }
 
+  async function updateCategory(values) {
+    if (!editing?.id) return
+    try {
+      await apiFetch(`/api/categories/${editing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: values.nom,
+          description: null,
+        }),
+      })
+
+      const emojiMap = getMap(EMOJI_KEY)
+      emojiMap[editing.id] = values.emoji || emojiMap[editing.id] || pickEmoji()
+      setMap(EMOJI_KEY, emojiMap)
+
+      setEditOpen(false)
+      setEditing(null)
+      await load()
+    } catch (e) {
+      showTempError(e?.message || 'Erreur')
+    }
+  }
+
   async function deleteCategory(cat) {
-    await apiFetch(`/api/categories/${cat.id}`, { method: 'DELETE' })
-    await load()
+    try {
+      await apiFetch(`/api/categories/${cat.id}`, { method: 'DELETE' })
+      await load()
+    } catch (e) {
+      showTempError(e?.message || 'Erreur')
+    }
   }
 
   return (
@@ -183,7 +234,14 @@ export default function Categories() {
             </div>
 
             <div className="cat-actions" onClick={(e) => e.stopPropagation()}>
-              <button className="cat-btn" type="button">
+              <button
+                className="cat-btn"
+                type="button"
+                onClick={() => {
+                  setEditing(c)
+                  setEditOpen(true)
+                }}
+              >
                 <Pencil size={16} />
                 Modifier
               </button>
@@ -214,7 +272,17 @@ export default function Categories() {
         </div>
       </div>
 
-      <CategoryModal open={open} onClose={() => setOpen(false)} onSubmit={addCategory} />
+      <CategoryModal open={open} mode="create" onClose={() => setOpen(false)} onSubmit={addCategory} />
+      <CategoryModal
+        open={editOpen}
+        mode="edit"
+        initialValues={editing}
+        onClose={() => {
+          setEditOpen(false)
+          setEditing(null)
+        }}
+        onSubmit={updateCategory}
+      />
     </section>
   )
 }

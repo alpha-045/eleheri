@@ -21,9 +21,11 @@ import {
   X,
   User,
 } from 'lucide-react'
+import { useAuth } from '../../auth/AuthContext'
 
 export default function Sidebar({ open, onClose, onLogout }) {
   const [openSub, setOpenSub] = useState(null)
+  const { hasAnyPermission, hasPermission } = useAuth()
 
   const navItemClass = ({ isActive }) =>
     isActive ? 'nav-item nav-item-active' : 'nav-item'
@@ -55,22 +57,30 @@ export default function Sidebar({ open, onClose, onLogout }) {
         {/* ── MENU PRINCIPAL ── */}
         <div className="nav-section">
           <div className="nav-title">MENU PRINCIPAL</div>
-          <NavLink className={navItemClass} to="/admin/dashboard" onClick={close}>
-            <LayoutDashboard className="nav-icon" size={18} />
-            Dashboard
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/commandes" onClick={close}>
-            <ShoppingCart className="nav-icon" size={18} />
-            Commandes
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/produits" onClick={close}>
-            <Boxes className="nav-icon" size={18} />
-            Produits
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/categories" onClick={close}>
-            <PackageSearch className="nav-icon" size={18} />
-            Catégories
-          </NavLink>
+          {hasPermission('systeme.stats') ? (
+            <NavLink className={navItemClass} to="/admin/dashboard" onClick={close}>
+              <LayoutDashboard className="nav-icon" size={18} />
+              Dashboard
+            </NavLink>
+          ) : null}
+          {hasAnyPermission(['commandes.view', 'commandes.edit', 'commandes.cancel']) ? (
+            <NavLink className={navItemClass} to="/admin/commandes" onClick={close}>
+              <ShoppingCart className="nav-icon" size={18} />
+              Commandes
+            </NavLink>
+          ) : null}
+          {hasAnyPermission(['produits.view', 'produits.create', 'produits.edit']) ? (
+            <NavLink className={navItemClass} to="/admin/produits" onClick={close}>
+              <Boxes className="nav-icon" size={18} />
+              Produits
+            </NavLink>
+          ) : null}
+          {hasAnyPermission(['categories.view', 'categories.manage']) ? (
+            <NavLink className={navItemClass} to="/admin/categories" onClick={close}>
+              <PackageSearch className="nav-icon" size={18} />
+              Catégories
+            </NavLink>
+          ) : null}
         </div>
 
         {/* ── GESTION DE TRAVAIL ── */}
@@ -122,35 +132,40 @@ export default function Sidebar({ open, onClose, onLogout }) {
         {/* ── GESTION ÉQUIPE ── */}
         <div className="nav-section">
           <div className="nav-title">GESTION ÉQUIPE</div>
-          <NavLink className={navItemClass} to="/admin/utilisateurs" onClick={close}>
-            <Users className="nav-icon" size={18} />
-            Utilisateurs
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/livreurs" onClick={close}>
-            <Truck className="nav-icon" size={18} />
-            Livreurs
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/agents" onClick={close}>
-            <Users className="nav-icon" size={18} />
-            Agents
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/roles" onClick={close}>
-            <UserCog className="nav-icon" size={18} />
-            Rôles &amp; Permissions
-          </NavLink>
-          <NavLink className={navItemClass} to="/admin/promotions" onClick={close}>
-            <Tags className="nav-icon" size={18} />
-            Promotions
-          </NavLink>
+          {hasAnyPermission(['utilisateurs.view', 'utilisateurs.manage']) ? (
+            <>
+              <NavLink className={navItemClass} to="/admin/utilisateurs" onClick={close}>
+                <Users className="nav-icon" size={18} />
+                Utilisateurs
+              </NavLink>
+              <NavLink className={navItemClass} to="/admin/livreurs" onClick={close}>
+                <Truck className="nav-icon" size={18} />
+                Livreurs
+              </NavLink>
+              <NavLink className={navItemClass} to="/admin/agents" onClick={close}>
+                <Users className="nav-icon" size={18} />
+                Agents
+              </NavLink>
+            </>
+          ) : null}
+          {hasPermission('systeme.settings') ? (
+            <NavLink className={navItemClass} to="/admin/roles" onClick={close}>
+              <UserCog className="nav-icon" size={18} />
+              Rôles &amp; Permissions
+            </NavLink>
+          ) : null}
+          {hasAnyPermission(['promotions.view', 'promotions.manage']) ? (
+            <NavLink className={navItemClass} to="/admin/promotions" onClick={close}>
+              <Tags className="nav-icon" size={18} />
+              Promotions
+            </NavLink>
+          ) : null}
         </div>
 
         {/* ── SYSTÈME ── */}
         <div className="nav-section">
           <div className="nav-title">SYSTÈME</div>
-          <NavLink className={navItemClass} to="/admin/statistiques" onClick={close}>
-            <BarChart3 className="nav-icon" size={18} />
-            Statistiques
-          </NavLink>
+       
           <NavLink className={navItemClass} to="/admin/parametres" onClick={close}>
             <Settings className="nav-icon" size={18} />
             Paramètres

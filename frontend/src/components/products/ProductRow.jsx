@@ -22,9 +22,6 @@ export default function ProductRow({ product, onEdit, onDelete }) {
       </div>
 
       <div className="product-actions">
-        <button className="icon-pill" type="button" aria-label="Favori">
-          <Heart size={18} />
-        </button>
         <button className="icon-pill" type="button" onClick={() => onEdit?.(product)} aria-label="Modifier">
           <Pencil size={18} />
         </button>

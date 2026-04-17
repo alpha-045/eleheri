@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
-import { ToastViewport } from '../Alert'
+import ToastViewport from '../ToastViewport'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 
@@ -14,8 +14,6 @@ export default function AdminLayout() {
   if (loading) return <div className="page">Loading…</div>
 
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
-
-  if ((user?.role?.nom || '') !== 'admin') return <Navigate to="/login" replace />
 
   return (
     <div className="admin-shell">

@@ -151,6 +151,7 @@ abstract class CrudController extends Controller
             'lignes_commande_achat_commande_achat_id_foreign' => "Impossible de supprimer cette commande d'achat : elle contient des lignes.",
             'lignes_commande_vente_commande_vente_id_foreign' => "Impossible de supprimer cette commande de vente : elle contient des lignes.",
             'ventes_commande_vente_id_foreign' => "Impossible de supprimer cette commande : une vente est associée.",
+            'utilisateurs_role_id_foreign' => "Impossible de supprimer ce rôle : des utilisateurs y sont rattachés.",
         ];
 
         if ($constraint && isset($map[$constraint])) return $map[$constraint];

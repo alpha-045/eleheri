@@ -99,7 +99,7 @@ function PromoModal({ open, onClose, onSubmit, initial, targets }) {
 
   return (
     <div className="modal-overlay" onMouseDown={onClose}>
-      <div className="modal promo-modal" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="promo-modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <div className="modal-title">{title}</div>
           <button className="modal-x" type="button" onClick={onClose} aria-label="Fermer">
@@ -200,8 +200,8 @@ function PromoModal({ open, onClose, onSubmit, initial, targets }) {
 function ConfirmModal({ open, onClose, onConfirm, title, description, confirmLabel }) {
   if (!open) return null
   return (
-    <div className="modal-overlay" onMouseDown={onClose}>
-      <div className="modal confirm-modal" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="modal-overlay-confirmpromo"  onMouseDown={onClose}>
+      <div className=" confirm-modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="confirm-title">{title}</div>
         <div className="confirm-desc">{description}</div>
         <div className="confirm-actions">
