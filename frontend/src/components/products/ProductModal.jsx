@@ -37,7 +37,6 @@ export default function ProductModal({
       codeArticle.trim() &&
       nom.trim() &&
       prix !== "" &&
-      stock !== "" &&
       sousCategorieId &&
       unite
     );
@@ -181,11 +180,13 @@ export default function ProductModal({
     e.preventDefault();
     if (!canSubmit) return;
     stopScanner();
+
+
     onSubmit?.({
       code_article: codeArticle.trim(),
       nom: nom.trim(),
       prix: Number(prix),
-      seuil_min: Number(stock),
+      seuil_min: stock === "" ? 0 : Number(stock),
       sous_categorie_id: Number(sousCategorieId),
       unite,
       file,
@@ -243,8 +244,8 @@ export default function ProductModal({
                 className="form-input"
                 value={codeArticle}
                 onChange={(e) => setCodeArticle(e.target.value)}
-                placeholder="Ex: 6130001234567"
-                readOnly={mode !== "edit"}
+                placeholder="Ex: 613000123456"
+             
                 required
               />
               {mode !== "edit" ? (

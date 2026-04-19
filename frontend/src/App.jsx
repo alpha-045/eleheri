@@ -24,6 +24,8 @@ import Stock from './pages/admin/Stock'
 import SubCategories from './pages/admin/SubCategories'
 import Utilisateurs from './pages/admin/Utilisateurs'
 import Ventes from './pages/admin/Ventes'
+import ProductDetails from './pages/admin/ProductDetails'
+import Packs from './pages/admin/Packs'
 
 function RootRedirect() {
   const { user, loading, hasAnyPermission } = useAuth()
@@ -53,6 +55,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="commandes" element={<Commandes />} />
           <Route path="produits" element={<Produits />} />
+          <Route path="produits/:id" element={<ProductDetails />} />
           <Route path="categories" element={<Categories />} />
           <Route path="categories/:categoryId" element={<SubCategories />} />
 
@@ -69,6 +72,7 @@ function App() {
           <Route path="utilisateurs" element={<Utilisateurs />} />
           <Route path="livreurs" element={<Livreurs />} />
           <Route path="agents" element={<Agents />} />
+          <Route path="packs" element={<Packs />} />
           <Route path="roles" element={<Roles />} />
           <Route path="promotions" element={<Promotions />} />
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\HistoriqueActionController;
 use App\Http\Controllers\Api\LigneCommandeAchatController;
 use App\Http\Controllers\Api\LigneCommandeVenteController;
 use App\Http\Controllers\Api\MouvementStockController;
+use App\Http\Controllers\Api\PackController;
 use App\Http\Controllers\Api\PrixArticleController;
 use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\RoleController;
@@ -91,3 +92,14 @@ Route::apiResource('lignes_commande_vente', LigneCommandeVenteController::class)
 Route::apiResource('ventes', VenteController::class)->only(['index', 'show']);
 
 Route::apiResource('promotions', PromotionController::class);
+
+Route::middleware(['auth:sanctum', 'permission:packs.view|systeme.settings'])->group(function () {
+    Route::get('packs', [PackController::class, 'index']);
+    Route::get('packs/{pack}', [PackController::class, 'show']);
+});
+Route::middleware(['auth:sanctum', 'permission:packs.manage|systeme.settings'])->group(function () {
+    Route::post('packs', [PackController::class, 'store']);
+    Route::put('packs/{pack}', [PackController::class, 'update']);
+    Route::patch('packs/{pack}', [PackController::class, 'update']);
+    Route::delete('packs/{pack}', [PackController::class, 'destroy']);
+});

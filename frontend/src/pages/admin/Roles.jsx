@@ -50,6 +50,14 @@ const PERM_GROUPS = [
     ],
   },
   {
+    key: 'packs',
+    title: 'Packs',
+    perms: [
+      { key: 'packs.view', label: 'Voir packs' },
+      { key: 'packs.manage', label: 'Créer / Modifier / Supprimer' },
+    ],
+  },
+  {
     key: 'systeme',
     title: 'Système',
     perms: [

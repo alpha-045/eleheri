@@ -1,6 +1,6 @@
-import { Pencil, Trash2 } from 'lucide-react'
+import { Eye, Pencil, Trash2 } from 'lucide-react'
 
-export default function ProductCard({ product, onEdit, onDelete }) {
+export default function ProductCard({ product, onDetails, onEdit, onDelete }) {
   return (
     <div className="card">
       <div className="card-badge">
@@ -21,6 +21,9 @@ export default function ProductCard({ product, onEdit, onDelete }) {
             {product.prix} DH/{product.unite}
           </div>
           <div className="card-actions">
+            <button className="mini" type="button" aria-label="Details" onClick={() => onDetails?.(product)}>
+              <Eye size={16} color="#64748b" />
+            </button>
             <button className="mini" type="button" aria-label="Edit" onClick={() => onEdit?.(product)}>
               <Pencil size={16} color="#64748b" />
             </button>

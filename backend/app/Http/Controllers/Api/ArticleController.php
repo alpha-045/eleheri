@@ -20,7 +20,7 @@ class ArticleController extends CrudController
         'nom' => ['required', 'string', 'max:150'],
         'description' => ['nullable', 'string'],
         'unite' => ['nullable', 'string', 'max:20'],
-        'image' => ['required', 'image'],
+        'image' => ['required','image'],
         'actif' => ['nullable', 'boolean'],
     ];
 
@@ -57,9 +57,7 @@ class ArticleController extends CrudController
             }
             throw $e;
         }
-
         $this->logAction('create', $model->getTable(), (int) $model->getKey(), $data);
-
         $model->load($this->with);
         return response()->json($model, 201);
     }

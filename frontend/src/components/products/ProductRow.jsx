@@ -1,6 +1,6 @@
-import { Heart, Pencil, Trash2 } from 'lucide-react'
+import { Eye, Pencil, Trash2 } from 'lucide-react'
 
-export default function ProductRow({ product, onEdit, onDelete }) {
+export default function ProductRow({ product, onDetails, onEdit, onDelete }) {
   return (
     <div className="product-row">
       <div className="product-left">
@@ -11,7 +11,8 @@ export default function ProductRow({ product, onEdit, onDelete }) {
           <div className="product-name">{product.nom}</div>
           <div className="product-meta">
             {product.categoryName ? `${product.categoryName} / ` : ''}
-            {product.subCategoryName || product.categorie}
+            {product.subCategoryName || product.categorie} <br />
+            {product?.code_article}
           </div>
         </div>
       </div>
@@ -22,6 +23,9 @@ export default function ProductRow({ product, onEdit, onDelete }) {
       </div>
 
       <div className="product-actions">
+        <button className="icon-pill" type="button" onClick={() => onDetails?.(product)} aria-label="Détails">
+          <Eye size={18} />
+        </button>
         <button className="icon-pill" type="button" onClick={() => onEdit?.(product)} aria-label="Modifier">
           <Pencil size={18} />
         </button>

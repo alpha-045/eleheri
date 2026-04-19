@@ -11,7 +11,7 @@ class Article extends Model
 {
     protected $table = 'articles';
 
-    protected $fillable = [
+    protected $fillable =[
         'sous_categorie_id',
         'code_article',
         'nom',

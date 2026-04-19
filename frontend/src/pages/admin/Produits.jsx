@@ -1,296 +1,49 @@
-import { useEffect, useMemo, useState } from 'react'
-import { LayoutGrid, List, Plus, Search } from 'lucide-react'
 import { useOutletContext } from 'react-router-dom'
+import { LayoutGrid, List, Plus, Search } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import ProductModal from '../../components/products/ProductModal'
 import ProductRow from '../../components/products/ProductRow'
-import { apiFetch } from '../../lib/api'
 import ProductCard from '../../components/products/ProductCard'
 import Alert from '../../components/Alert'
-import { toast } from '../../lib/toast'
+import { useProduitsPage } from '../../features/produits/useProduitsPage'
 import '../../styles/produits.css'
 
 export default function Produits() {
   const { search, setSearch } = useOutletContext()
-  const [open, setOpen] = useState(false)
-  const [modalMode, setModalMode] = useState('create')
-  const [editing, setEditing] = useState(null)
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [deleting, setDeleting] = useState(null)
-  const [view, setView] = useState('list')
-  const [categoryId, setCategoryId] = useState('all')
-
-  const [products, setProducts] = useState([])
-  const [sousCategories, setSousCategories] = useState([])
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  async function loadAll() {
-    setError('')
-    setSuccess('')
-    setLoading(true)
-    try {
-      const [articlesRes, scRes, catRes] = await Promise.all([
-        apiFetch('/api/articles?per_page=100'),
-        apiFetch('/api/sous_categories?per_page=200'),
-        apiFetch('/api/categories?per_page=200'),
-      ])
-
-      const sc = Array.isArray(scRes?.data) ? scRes.data : scRes?.data?.data || []
-      setSousCategories(sc)
-
-      const cat = Array.isArray(catRes?.data) ? catRes.data : catRes?.data?.data || []
-      setCategories(cat)
-
-      const catById = new Map(cat.map((c) => [String(c.id), c]))
-      const scById = new Map(sc.map((s) => [String(s.id), s]))
-
-      const articles = Array.isArray(articlesRes?.data) ? articlesRes.data : articlesRes?.data?.data || []
-      const mapped = articles.map((a) => ({
-        id: a.id,
-        code_article: a.code_article,
-        nom: a.nom,
-        subCategoryName: a?.sous_categorie?.nom || a?.sousCategorie?.nom || '',
-        categoryName: (() => {
-          const sid = String(a.sous_categorie_id ?? '')
-          const s = scById.get(sid)
-          const cid = String(s?.categorie_id ?? '')
-          return catById.get(cid)?.nom || s?.categorie?.nom || ''
-        })(),
-        unite: a.unite || 'pièce',
-        poids: 0,
-        prix: Number(a?.prix?.prix_vente ?? 0),
-        prix_achat: Number(a?.prix?.prix_achat ?? 0),
-        prix_id: a?.prix?.id ?? null,
-        stock: Number(a?.stock?.quantite ?? 0),
-        stock_id: a?.stock?.id ?? null,
-        seuil_min: Number(a?.stock?.seuil_min ?? 0),
-        img: a.image || '/imagelogin.png',
-        sous_categorie_id: a.sous_categorie_id,
-        categorie_id: (() => {
-          const sid = String(a.sous_categorie_id ?? '')
-          const s = scById.get(sid)
-          return s?.categorie_id ?? null
-        })(),
-      }))
-      setProducts(mapped)
-    } catch (e) {
-      setError(e?.message || 'Erreur')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadAll()
-  }, [])
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    return products.filter((p) => {
-      const okCategory =
-        categoryId === 'all' ? true : String(p.categorie_id ?? '') === String(categoryId)
-      const okQuery = !q ? true : p.nom.toLowerCase().includes(q)
-      return okCategory && okQuery
-    })
-  }, [products, search, categoryId])
-
-  function openCreate() {
-    setError('')
-    setSuccess('')
-    setEditing(null)
-    setModalMode('create')
-    setOpen(true)
-  }
-
-  function openEdit(product) {
-    setError('')
-    setSuccess('')
-    setEditing(product)
-    setModalMode('edit')
-    setOpen(true)
-  }
-
-  function askDelete(product) {
-    setError('')
-    setSuccess('')
-    setDeleting(product)
-    setConfirmOpen(true)
-  }
-
-  async function addProduct(values) {
-    setSubmitting(true)
-    setError('')
-    setSuccess('')
-    try {
-      const code_article = (values?.code_article || '').toString().trim() || `ART-${Date.now()}`
-
-      const form = new FormData()
-      form.append('sous_categorie_id', String(values.sous_categorie_id))
-      form.append('code_article', code_article)
-      form.append('nom', values.nom)
-      form.append('unite', values.unite || 'pièce')
-      form.append('actif', '1')
-      if (values?.file) form.append('image', values.file)
-
-      const article = await apiFetch('/api/articles', {
-        method: 'POST',
-        body: form,
-      })
-
-      await apiFetch('/api/prix_articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          article_id: article.id,
-          prix_achat: 0,
-          prix_vente: values.prix,
-          prix_gros: null,
-          prix_promo: null,
-        }),
-      })
-
-      await apiFetch('/api/stock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          article_id: article.id,
-          quantite: 0,
-          seuil_min: values.seuil_min,
-        }),
-      })
-
-      setOpen(false)
-      setSuccess('Produit ajouté.')
-      toast({ type: 'success', message: 'Produit ajouté.' })
-      await loadAll()
-    } catch (e) {
-      const msg = e?.message || 'Erreur'
-      setError(msg)
-      toast({ type: 'error', message: msg })
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  async function updateProduct(values) {
-    if (!editing?.id) return
-    setSubmitting(true)
-    setError('')
-    setSuccess('')
-    try {
-      const nextCode = (values?.code_article || '').toString().trim() || editing.code_article
-
-      if (values?.file) {
-        const form = new FormData()
-        form.append('_method', 'PUT')
-        form.append('sous_categorie_id', String(values.sous_categorie_id))
-        form.append('code_article', nextCode)
-        form.append('nom', values.nom)
-        form.append('unite', values.unite || editing.unite || 'pièce')
-        form.append('image', values.file)
-
-        await apiFetch(`/api/articles/${editing.id}`, {
-          method: 'POST',
-          body: form,
-        })
-      } else {
-        await apiFetch(`/api/articles/${editing.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sous_categorie_id: values.sous_categorie_id,
-            code_article: nextCode,
-            nom: values.nom,
-            unite: values.unite || editing.unite || 'pièce',
-          }),
-        })
-      }
-
-      if (editing.prix_id) {
-        await apiFetch(`/api/prix_articles/${editing.prix_id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prix_achat: Number(editing.prix_achat ?? 0),
-            prix_vente: values.prix,
-            prix_gros: null,
-            prix_promo: null,
-          }),
-        })
-      } else {
-        await apiFetch('/api/prix_articles', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            article_id: editing.id,
-            prix_achat: 0,
-            prix_vente: values.prix,
-            prix_gros: null,
-            prix_promo: null,
-          }),
-        })
-      }
-
-      if (editing.stock_id) {
-        await apiFetch(`/api/stock/${editing.stock_id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            quantite: Number(editing.stock ?? 0),
-            seuil_min: values.seuil_min,
-          }),
-        })
-      } else {
-        await apiFetch('/api/stock', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            article_id: editing.id,
-            quantite: 0,
-            seuil_min: values.seuil_min,
-          }),
-        })
-      }
-
-      setOpen(false)
-      setSuccess('Produit modifié.')
-      toast({ type: 'success', message: 'Produit modifié.' })
-      await loadAll()
-    } catch (e) {
-      const msg = e?.message || 'Erreur'
-      setError(msg)
-      toast({ type: 'error', message: msg })
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  async function deleteProduct(product) {
-    if (!product?.id) return
-    setSubmitting(true)
-    setError('')
-    setSuccess('')
-    try {
-      await apiFetch(`/api/articles/${product.id}`, { method: 'DELETE' })
-      setConfirmOpen(false)
-      setDeleting(null)
-      setSuccess('Produit supprimé.')
-      toast({ type: 'success', message: 'Produit supprimé.' })
-      await loadAll()
-    } catch (e) {
-      const msg = e?.message || 'Erreur'
-      setError(msg)
-      toast({ type: 'error', message: msg })
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const navigate = useNavigate()
+  const {
+    open,
+    modalMode,
+    editing,
+    confirmOpen,
+    deleting,
+    view,
+    categoryId,
+    sousCategories,
+    categories,
+    loading,
+    error,
+    success,
+    submitting,
+    filtered,
+    setView,
+    setCategoryId,
+    setOpen,
+    setConfirmOpen,
+    setDeleting,
+    openCreate,
+    openEdit,
+    openDetails,
+    askDelete,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+  } = useProduitsPage({ search, setSearch, navigate })
 
   return (
     <section className="content">
+      <Alert type="error" message={error} />
+      <Alert type="success" message={success} />
       <div className="page-head">
         <div>
           <div className="page-title">Produits</div>
@@ -351,7 +104,7 @@ export default function Produits() {
             {loading ? <div className="products-empty">Loading…</div> : null}
             {!loading && filtered.length === 0 ? <div className="products-empty">Aucun produit</div> : null}
             {!loading
-              ? filtered.map((p) => <ProductRow key={p.id} product={p} onEdit={openEdit} onDelete={askDelete} />)
+              ? filtered.map((p) => <ProductRow key={p.id} product={p} onDetails={openDetails} onEdit={openEdit} onDelete={askDelete} />)
               : null}
           </div>
         </div>
@@ -359,7 +112,7 @@ export default function Produits() {
         <div className="grid">
           {loading ? <div className="products-empty">Loading…</div> : null}
           {!loading && filtered.length === 0 ? <div className="products-empty">Aucun produit</div> : null}
-          {!loading ? filtered.map((p) => <ProductCard key={p.id} product={p} onEdit={openEdit} onDelete={askDelete} />) : null}
+          {!loading ? filtered.map((p) => <ProductCard key={p.id} product={p} onDetails={openDetails} onEdit={openEdit} onDelete={askDelete} />) : null}
         </div>
       )}
 
