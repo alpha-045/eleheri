@@ -26,6 +26,7 @@ import Utilisateurs from './pages/admin/Utilisateurs'
 import Ventes from './pages/admin/Ventes'
 import ProductDetails from './pages/admin/ProductDetails'
 import Packs from './pages/admin/Packs'
+import Parametres from './pages/admin/Parametres'
 
 function RootRedirect() {
   const { user, loading, hasAnyPermission } = useAuth()
@@ -78,7 +79,7 @@ function App() {
 
           {/* ── SYSTÈME ── */}
           <Route path="statistiques" element={<Placeholder title="Statistiques" subtitle="Aperçu des stats" />} />
-          <Route path="parametres" element={<Placeholder title="Paramètres" subtitle="Réglages du système" />} />
+          <Route path="parametres" element={<Parametres />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

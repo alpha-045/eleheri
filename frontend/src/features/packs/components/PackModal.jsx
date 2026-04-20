@@ -28,18 +28,9 @@ export default function PackModal({ open, mode, initialValues, articles, onClose
   const canSubmit = nom.trim() && prixVente !== '' && items.length > 0
 
   const selectable = useMemo(() => {
-    const q = articleQuery.trim().toLowerCase()
     const picked = new Set(items.map((x) => String(x.article_id)))
-    return articles
-      .filter((a) => !picked.has(String(a.id)))
-      .filter((a) => {
-        if (!q) return true
-        const name = (a?.nom || '').toString().toLowerCase()
-        const code = (a?.code_article || '').toString().toLowerCase()
-        return name.includes(q) || code.includes(q)
-      })
-      .slice(0, 8)
-  }, [articles, articleQuery, items])
+    return articles.filter((a) => !picked.has(String(a.id)))
+  }, [articles, items])
 
   const itemsView = useMemo(() => {
     const byId = new Map(articles.map((a) => [String(a.id), a]))
@@ -111,27 +102,29 @@ export default function PackModal({ open, mode, initialValues, articles, onClose
           <div className="packs-items">
             <div className="packs-items-head">Produits du pack</div>
 
-            <div className="packs-picker">
-              <div className="packs-picker-input">
-                <Search size={16} />
-                <input
-                  className="packs-picker-field"
-                  value={articleQuery}
-                  onChange={(e) => setArticleQuery(e.target.value)}
-                  placeholder="Chercher un produit (nom ou code)…"
-                />
-              </div>
-              {selectable.length ? (
-                <div className="packs-picker-list">
+            <label className="form-label" style={{ marginBottom: '1rem' }}>
+              Sélectionner un produit à ajouter
+              <div className="select-wrap">
+                <select
+                  className="form-select"
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const a = selectable.find((x) => String(x.id) === String(e.target.value));
+                      if (a) addItem(a);
+                    }
+                  }}
+                >
+                  <option value="" disabled>-- Choisir un produit --</option>
                   {selectable.map((a) => (
-                    <button key={a.id} type="button" className="packs-pick" onClick={() => addItem(a)}>
-                      <div className="packs-pick-name">{a.nom}</div>
-                      <div className="packs-pick-sub">{a.code_article}</div>
-                    </button>
+                    <option key={a.id} value={a.id}>
+                      {a.nom} ({a.code_article})
+                    </option>
                   ))}
-                </div>
-              ) : null}
-            </div>
+                </select>
+                <div className="select-ico" style={{ pointerEvents: 'none' }}>▼</div>
+              </div>
+            </label>
 
             <div className="packs-items-list">
               {itemsView.length === 0 ? <div className="packs-empty">Ajoute au moins un produit.</div> : null}

@@ -57,10 +57,10 @@ export default function EntreeStock() {
     setError("");
     try {
       const [articlesRes, stockRes, mouvRes, scRes] = await Promise.all([
-        apiFetch("/api/articles?per_page=100"),
-        apiFetch("/api/stock?per_page=100"),
-        apiFetch("/api/mouvements_stock?per_page=100"),
-        apiFetch("/api/sous_categories?per_page=200"),
+        apiFetch("/api/articles?per_page=1000"),
+        apiFetch("/api/stock?per_page=1000"),
+        apiFetch("/api/mouvements_stock?per_page=1000"),
+        apiFetch("/api/sous_categories?per_page=1000"),
       ]);
 
       const a = Array.isArray(articlesRes?.data)
@@ -391,7 +391,34 @@ export default function EntreeStock() {
       });
       await loadAll();
       setBarcode(String(article.code_article || ""));
-      onBarcode(String(article.code_article || ""));
+      
+      setItems((prev) => {
+        const idx = prev.findIndex(
+          (it) => String(it.article_id) === String(article.id),
+        );
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = {
+            ...next[idx],
+            quantite: Number(next[idx].quantite || 0) + 1,
+          };
+          return next;
+        }
+        return [
+          ...prev,
+          {
+            article_id: article.id,
+            code_article: article.code_article,
+            nom: article.nom,
+            quantite: 1,
+          },
+        ];
+      });
+
+      window.clearTimeout(onBarcode._t);
+      onBarcode._t = window.setTimeout(() => {
+        if (open && mode === "scan") startScanner();
+      }, 650);
     } catch (e) {
       setError(e?.message || "Erreur");
       showToast({

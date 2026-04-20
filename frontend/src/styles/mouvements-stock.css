@@ -69,7 +69,7 @@
   gap: 16px;
   max-height: 75vh;
   overflow-y: auto;
-  padding-right: 4px; /* مكان باش السكرول بار مايطنش فالContent */
+  padding-right: 4px;
 }
 
 /* ========================================= */
@@ -98,13 +98,12 @@
   left: 10%;
   width: 80%;
   height: 2px;
-  background: #ef4444; /* لون أحمر */
-  box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.8); /* توهج أحمر */
+  background: #ef4444; 
+  box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.8); 
   animation: msScan 2s ease-in-out infinite;
   z-index: 2;
 }
 
-/* scan pattern: kaymchi mn lta7t (90%) l fou9 (10%) w kay3awd ytla3 (awla kayhbet direct bl opacity) */
 @keyframes msScan {
   0% { top: 90%; opacity: 0; }
   10% { opacity: 1; }
@@ -114,21 +113,17 @@
   100% { top: 90%; opacity: 0; }
 }
 
-/* ========================================= */
-/* ======= CORNERS LUI MÉTALIQUE ========== */
-/* ========================================= */
 .ms-viewfinder::before,
 .ms-viewfinder::after {
   content: "";
   position: absolute;
   width: 40px;
   height: 40px;
-  border: 2px solid #2dd4bf; /* teal color بحال الصورة */
+  border: 2px solid #2dd4bf;
   z-index: 3;
   pointer-events: none;
 }
 
-/* top-left & bottom-right */
 .ms-viewfinder::before {
   top: 20px;
   left: 20px;
@@ -161,7 +156,6 @@
   height: 40px;
   border: 2px solid #2dd4bf;
 }
-/* top-right */
 .ms-viewfinder-corners::before {
   top: 20px;
   right: 20px;
@@ -169,7 +163,6 @@
   border-bottom: none;
   border-radius: 0 8px 0 0;
 }
-/* bottom-left */
 .ms-viewfinder-corners::after {
   bottom: 20px;
   left: 20px;
@@ -178,9 +171,6 @@
   border-radius: 0 0 0 8px;
 }
 
-/* ========================================= */
-/* ========= SEARCH & INPUTS ============== */
-/* ========================================= */
 .ms-banner { padding: 10px; border-radius: 8px; font-size: 13px; }
 .ms-banner-err { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
 
@@ -226,9 +216,6 @@
   height: auto;
 }
 
-/* ========================================= */
-/* ============ BUTTONS =================== */
-/* ========================================= */
 .ms-btn-ghost, .ms-btn-primary, .ms-btn-danger {
   height: 40px;
   padding: 0 16px;
@@ -249,9 +236,6 @@
 .ms-btn-danger:hover { background: #fee2e2; }
 .ms-btn-ghost:disabled, .ms-btn-primary:disabled, .ms-btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ========================================= */
-/* ========= SCANNED ARTICLE CARD ========= */
-/* ========================================= */
 .ms-article-card {
   background: #f0f9ff;
   border: 1px solid #bae6fd;
@@ -274,9 +258,6 @@
   flex-wrap: wrap; 
 }
 
-/* ========================================= */
-/* ============= BADGES =================== */
-/* ========================================= */
 .ms-badge { 
   display: inline-block; 
   padding: 2px 8px; 
@@ -317,9 +298,6 @@
   border: 1px solid rgba(239, 68, 68, 0.22);
 }
 
-/* ========================================= */
-/* ============= ITEMS TABLE ============== */
-/* ========================================= */
 .ms-items {
   border: 1px solid #e2e8f0;
   background: #ffffff;
@@ -342,6 +320,7 @@
 }
 
 .ms-items-table-wrap {
+  width: 100%;
   overflow-x: auto;
 }
 
@@ -383,9 +362,6 @@
   align-items: center;
 }
 
-/* ========================================= */
-/* =========== BOTTOM FORM GRID =========== */
-/* ========================================= */
 .ms-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -419,9 +395,6 @@
   border-top: 1px solid #f1f5f9;
 }
 
-/* ========================================= */
-/* =========== MANUAL MODE HINTS ========== */
-/* ========================================= */
 .movement-hint {
   border: 1px solid #eef2f7;
   background: #f8fafc;
@@ -435,9 +408,6 @@
 .movement-hint-sub { font-size: 12px; color: #64748b; }
 .movement-hint-strong { color: #0f172a; font-weight: 800; }
 
-/* ========================================= */
-/* ============== TOASTS ================== */
-/* ========================================= */
 .ms-toast-wrap {
   position: fixed;
   right: 18px;
@@ -471,44 +441,45 @@
 /* ========================================= */
 @media (max-width: 1024px) {
   .ms-scanner-layout {
-    flex-direction: column; /* اليسار و اليمين يطيو تحت بعض */
+    flex-direction: column;
   }
 
   .ms-scanner-left {
     flex: none;
     width: 100%;
-    position: static; /* يخلي الـ sticky */
+    position: static;
   }
 
   .ms-scanner-right {
-    max-height: none; /* يخلي الحد الأقصى ديال الطول باش يطلع كامل */
+    max-height: none;
     overflow-y: visible; 
     padding-right: 0;
+    width: 100%;
   }
 
   .ms-form-grid {
-    grid-template-columns: 1fr; /* الموتيف و النوت يطيو تحت بعض */
+    grid-template-columns: 1fr;
   }
 
   .ms-barcode-input {
-    flex-wrap: wrap; /* البوتانات يطيو تحت يلا ضاق */
+    flex-wrap: wrap;
   }
 
   .ms-barcode-input .ms-form-input {
-    min-width: 100%; /* السيرش كيطول مع الشاشة */
+    min-width: 100%;
   }
 
   .ms-btn-ghost, .ms-btn-primary, .ms-btn-danger {
-    flex: 1; /* البوتانات يتقسمو العرض بالمساواة */
+    flex: 1;
     justify-content: center;
+  }
+
+  .ms-items-table {
+    min-width: 0;
   }
 }
 
 @media (max-width: 520px) {
-  .ms-items-table {
-    min-width: 0;
-  }
-
   .ms-items-table th:nth-child(2),
   .ms-items-table td:nth-child(2),
   .ms-items-table th:nth-child(3),

@@ -36,8 +36,8 @@ export default function Prix() {
     setError("");
     try {
       const [articlesRes, prixRes] = await Promise.all([
-        apiFetch("/api/articles?per_page=200"),
-        apiFetch("/api/prix_articles?per_page=200"),
+        apiFetch("/api/articles?per_page=1000"),
+        apiFetch("/api/prix_articles?per_page=1000"),
       ]);
       const a = Array.isArray(articlesRes?.data)
         ? articlesRes.data

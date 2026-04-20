@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Bar,
@@ -449,9 +450,9 @@ export default function Dashboard() {
                 <div className="dash-card-title">Résumé</div>
                 <div className="dash-card-sub">Synthèse des périodes les plus actives</div>
               </div>
-              <button className="dash-link" type="button">
+              <Link className="dash-link" to="/admin/commandes">
                 Voir détail
-              </button>
+              </Link>
             </div>
 
             <div className="dash-summary">

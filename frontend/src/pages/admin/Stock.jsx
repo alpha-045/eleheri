@@ -44,8 +44,8 @@ export default function Stock() {
     setError('')
     try {
       const [articlesRes, stockRes] = await Promise.all([
-        apiFetch('/api/articles?per_page=200'),
-        apiFetch('/api/stock?per_page=200'),
+        apiFetch('/api/articles?per_page=1000'),
+        apiFetch('/api/stock?per_page=1000'),
       ])
       const a = Array.isArray(articlesRes?.data) ? articlesRes.data : articlesRes?.data?.data || []
       const s = Array.isArray(stockRes?.data) ? stockRes.data : stockRes?.data?.data || []

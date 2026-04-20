@@ -584,6 +584,35 @@
 
 
 @media (max-width: 768px) {
+  .topbar {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+
+  .icon-btn-menu {
+    order: 1;
+  }
+
+  .topbar-actions {
+    order: 2;
+  }
+
+  .topbar-search {
+    order: 3;
+    flex: 1 1 100%;
+    margin-top: 8px;
+    max-width: 100%;
+  }
+
+  .user-chip-text {
+    display: none;
+  }
+
+  .user-chip {
+    padding: 6px;
+    border-left: none;
+  }
+
   .tools-bar {
     flex-direction: column;
     align-items: stretch; 
@@ -596,7 +625,6 @@
   .tool-select {
     width: 100%;
   }
-
 
   .tool-btn {
     width: 100%;
@@ -759,14 +787,10 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  margin: 15px;
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: 10px;
   z-index: 50;
-  border: 1px solid red;
-
-
 }
 
 .modal {

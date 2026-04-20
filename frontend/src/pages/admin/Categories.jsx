@@ -102,7 +102,7 @@ export default function Categories() {
     setError('')
     setLoading(true)
     try {
-      const res = await apiFetch('/api/categories?per_page=200')
+      const res = await apiFetch('/api/categories?per_page=1000')
       const items = Array.isArray(res?.data) ? res.data : res?.data?.data || []
 
       const emojiMap = getMap(EMOJI_KEY)

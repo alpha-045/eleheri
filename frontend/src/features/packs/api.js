@@ -1,11 +1,11 @@
 import { apiFetch } from '../../lib/api'
 
-export async function fetchPacks(perPage = 200) {
+export async function fetchPacks(perPage = 1000) {
   const data = await apiFetch(`/api/packs?per_page=${perPage}`)
   return Array.isArray(data?.data) ? data.data : data?.data?.data || []
 }
 
-export async function fetchArticles(perPage = 200) {
+export async function fetchArticles(perPage = 1000) {
   const data = await apiFetch(`/api/articles?per_page=${perPage}`)
   return Array.isArray(data?.data) ? data.data : data?.data?.data || []
 }

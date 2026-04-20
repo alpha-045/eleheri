@@ -27,7 +27,7 @@ abstract class CrudController extends Controller
         }
 
         $perPage = (int) $request->query('per_page', 20);
-        $perPage = max(1, min(100, $perPage));
+        $perPage = max(1, min(1000, $perPage));
 
         return response()->json($query->paginate($perPage));
     }

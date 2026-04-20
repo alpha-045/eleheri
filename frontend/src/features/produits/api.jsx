@@ -1,16 +1,16 @@
 import { apiFetch } from '../../lib/api'
 
-export async function fetchArticles(perPage = 100) {
+export async function fetchArticles(perPage = 1000) {
   const data = await apiFetch(`/api/articles?per_page=${perPage}`)
   return Array.isArray(data?.data) ? data.data : data?.data?.data || []
 }
 
-export async function fetchSousCategories(perPage = 200) {
+export async function fetchSousCategories(perPage = 1000) {
   const data = await apiFetch(`/api/sous_categories?per_page=${perPage}`)
   return Array.isArray(data?.data) ? data.data : data?.data?.data || []
 }
 
-export async function fetchCategories(perPage = 200) {
+export async function fetchCategories(perPage = 1000) {
   const data = await apiFetch(`/api/categories?per_page=${perPage}`)
   return Array.isArray(data?.data) ? data.data : data?.data?.data || []
 }

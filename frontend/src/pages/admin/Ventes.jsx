@@ -25,7 +25,7 @@ export default function Ventes() {
     setLoading(true);
     setError("");
     try {
-      const res = await apiFetch("/api/ventes?per_page=100");
+      const res = await apiFetch("/api/ventes?per_page=1000");
       const list = Array.isArray(res?.data) ? res.data : res?.data?.data || [];
       setItems(list);
     } catch (e) {
