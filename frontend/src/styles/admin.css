@@ -544,15 +544,14 @@
 }
 
 
-/* ── Container dyal tools ── */
+
 .tools-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap; /* ← هادا المهم باش يرجع لسطر جديد */
+  flex-wrap: wrap;
 }
 
-/* ── Search bar ── */
 .tool-search {
   display: flex;
   align-items: center;
@@ -968,13 +967,8 @@
   cursor: default;
 }
 
-@media (max-width: 900px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
-/* Commandes Badges */
+
 .status-badge {
   padding: 4px 10px;
   border-radius: 4px;
@@ -1013,7 +1007,7 @@
   font-weight: 500;
 }
 
-/* Red Modal */
+
 .modal-red {
   background-color: #e60000 !important;
   color: white !important;
@@ -1192,4 +1186,9 @@
 .orders-confirm-strong {
   color: #0f172a;
   font-weight: 800;
+}
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -10,7 +10,7 @@
   gap: 24px;
 }
 
-/* Sidebar des paramètres */
+
 .param-sidebar {
   flex: 0 0 240px;
   background: #ffffff;
@@ -48,7 +48,6 @@
   color: #2563eb;
 }
 
-/* Contenu Principal */
 .param-content {
   flex: 1;
   background: #ffffff;
@@ -66,7 +65,6 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
-/* Formulaire */
 .param-form {
   display: flex;
   flex-direction: column;
@@ -121,14 +119,12 @@
   background: #f8fafc;
 }
 
-/* Grille 2 colonnes */
 .param-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-/* Bouton Sauvegarder */
 .param-actions {
   display: flex;
   justify-content: flex-end;
@@ -160,7 +156,6 @@
   cursor: not-allowed;
 }
 
-/* --- Responsive --- */
 @media (max-width: 900px) {
   .param-layout {
     flex-direction: column;

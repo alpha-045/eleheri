@@ -1,14 +1,4 @@
-/* ===============================================================
-   PROMO — CSS COMPLET CORRIGÉ + RESPONSIVE
-   =============================================================== */
 
-/* ================= ANIMATIONS ================= */
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(10px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0)   scale(1); }
-}
-
-/* ================= OVERLAY ================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -41,7 +31,6 @@
 
 }
 
-/* ================= MODAL SHELL ================= */
 .promo-modal {
   background: #ffffff;
   border-radius: 16px;
@@ -55,7 +44,6 @@
   animation: modalFadeIn 0.2s ease-out;
 }
 
-/* ================= HEADER ================= */
 .modal-head {
   display: flex;
   align-items: center;
@@ -71,7 +59,6 @@
   color: #0f172a;
 }
 
-/* Bouton X */
 .modal-x {
   background: #f1f5f9;
   border: 0;
@@ -86,7 +73,6 @@
 }
 .modal-x:hover { background: #e2e8f0; }
 
-/* ✅ FIX: taille explicite icône X */
 .modal-x svg {
   width: 18px;
   height: 18px;
@@ -94,7 +80,6 @@
   flex-shrink: 0;
 }
 
-/* ================= FORM — split layout ================= */
 .promo-form {
   padding: 20px 22px 22px;
   display: grid;
@@ -121,7 +106,6 @@
   min-width: 0;
 }
 
-/* ================= PREVIEW ================= */
 .promo-preview { display: flex; flex-direction: column; flex: 1; }
 
 .promo-preview-title {
@@ -145,7 +129,6 @@
   background: #ffffff;
 }
 
-/* ✅ FIX: icône Tag — taille explicite */
 .promo-preview-box svg {
   width: 26px;
   height: 26px;
@@ -159,7 +142,6 @@
   color: #94a3b8;
 }
 
-/* ================= PREVIEW CARD ================= */
 .promo-card-preview {
   background: white;
   border-radius: 14px;
@@ -220,7 +202,6 @@
   margin-top: 6px;
 }
 
-/* ================= FORM ELEMENTS ================= */
 .form-label {
   display: flex;
   flex-direction: column;
@@ -258,12 +239,10 @@
   gap: 12px;
 }
 
-/* ✅ FIX: select-wrap + select-ico */
 .select-wrap { position: relative; }
 
 .select-wrap .form-select { appearance: none; cursor: pointer; padding-right: 34px; }
 
-/* ChevronDown injecté via JS/Lucide — si tu l'ajoutes en JSX, il aura cette classe */
 .select-ico {
   position: absolute;
   right: 12px;
@@ -271,13 +250,12 @@
   transform: translateY(-50%);
   pointer-events: none;
   color: #94a3b8;
-  width: 16px;   /* ✅ FIX */
-  height: 16px;  /* ✅ FIX */
+  width: 16px;  
+  height: 16px;  
   display: block;
   flex-shrink: 0;
 }
 
-/* ================= FOOTER MODAL ================= */
 .modal-foot {
   padding-top: 16px;
   border-top: 1px solid #f1f5f9;
@@ -288,7 +266,6 @@
   flex-shrink: 0;
 }
 
-/* ================= BOUTONS ================= */
 .btn-primary {
   background: #e10a0a;
   color: #ffffff;
@@ -325,7 +302,6 @@
 .btn-ghost svg { width: 16px; height: 16px; display: block; flex-shrink: 0; }
 .btn-ghost:hover { background: #f8fafc; }
 
-/* ================= TABS ================= */
 .promo-tabs {
   margin-top: 10px;
   display: inline-flex;
@@ -359,14 +335,12 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-/* ================= LISTE ================= */
 .promo-list {
   margin-top: 16px;
   display: grid;
   gap: 12px;
 }
 
-/* ================= CARD PROMO ================= */
 .promo-card {
   background: #ffffff;
   border: 1px solid #eef2f7;
@@ -380,7 +354,6 @@
 }
 .promo-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
 
-/* ---- Gauche ---- */
 .promo-left {
   display: flex;
   align-items: center;
@@ -399,7 +372,6 @@
   flex: 0 0 auto;
 }
 
-/* ✅ FIX: icône Tag dans promo-icon */
 .promo-icon svg {
   width: 20px;
   height: 20px;
@@ -431,7 +403,6 @@
   text-overflow: ellipsis;
 }
 
-/* ---- Badges ---- */
 .promo-badge {
   height: 22px;
   padding: 0 10px;
@@ -448,7 +419,6 @@
 .promo-badge-scheduled { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
 .promo-badge-expired   { background: rgba(148, 163, 184, 0.18); color: #475569; }
 
-/* ---- Meta ---- */
 .promo-meta {
   display: flex;
   gap: 10px;
@@ -479,7 +449,6 @@
   white-space: nowrap;
 }
 
-/* ✅ FIX: icônes dans meta-item */
 .promo-meta-item svg {
   width: 13px;
   height: 13px;
@@ -487,7 +456,6 @@
   flex-shrink: 0;
 }
 
-/* ---- Droite ---- */
 .promo-right {
   display: flex;
   align-items: center;
@@ -515,13 +483,11 @@
   font-weight: 700;
 }
 
-/* ---- Actions ---- */
 .promo-actions {
   display: flex;
   gap: 8px;
 }
 
-/* ✅ FIX: boutons icône dans actions */
 .promo-actions button {
   width: 34px;
   height: 34px;
@@ -542,15 +508,12 @@
   display: block;
 }
 
-/* ================= RESPONSIVE TABLETTE ================= */
 @media (max-width: 780px) {
-  /* ✅ Form: 1 colonne */
   .promo-form {
     grid-template-columns: 1fr;
     padding: 16px 16px 20px;
   }
 
-  /* Preview masqué en tablette pour gagner de la place — ou réduit */
   .promo-form-right {
     display: none;
   }
@@ -568,7 +531,6 @@
   }
 }
 
-/* ================= RESPONSIVE MOBILE ================= */
 @media (max-width: 480px) {
   .modal-overlay { padding: 0; align-items: flex-end; }
 
@@ -593,7 +555,6 @@
     justify-content: center;
   }
 
-  /* Tabs scrollables horizontalement sur petits écrans */
   .promo-tabs {
     width: 100%;
     overflow-x: auto;
@@ -602,7 +563,6 @@
     padding: 4px;
   }
 
-  /* Card mobile: stack complet */
   .promo-card { flex-direction: column; align-items: flex-start; }
 
   .promo-left { width: 100%; }
@@ -615,4 +575,9 @@
   }
 
   .promo-value-big { font-size: 18px; }
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
 }

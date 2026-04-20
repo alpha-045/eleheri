@@ -436,9 +436,6 @@
 .ms-toast-error { border-color: rgba(239, 68, 68, 0.25); }
 
 
-/* ========================================= */
-/* ========= RESPONSIVE (MOBILE) =========== */
-/* ========================================= */
 @media (max-width: 1024px) {
   .ms-scanner-layout {
     flex-direction: column;
