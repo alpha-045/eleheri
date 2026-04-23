@@ -6,6 +6,8 @@ import '../../styles/clients.css'
 import { useClientsPage } from '../../features/clients/useClientsPage'
 import { ClientModal } from '../../components/Clients/ClientModal'
 import { ViewClients } from '../../components/Clients/ViewClients'
+import { PaymentModal } from '../../components/Clients/PaymentModal'
+import { ClientHistoryModal } from '../../components/Clients/ClientHistoryModal'
 import { ConfirmModal } from '../../components/ConfirmModal'
 
 export default function Clients() {
@@ -30,7 +32,17 @@ export default function Clients() {
     openAdd,
     openEdit,
     openDelete,
+    openPayment,
+    paymentOpen,
+    setPaymentOpen,
+    payingClient,
+    openHistory,
+    historyOpen,
+    setHistoryOpen,
+    historyClient,
+    clientHistory,
     submit,
+    submitPayment,
     confirmDelete
   } = useClientsPage(search)
 
@@ -38,8 +50,8 @@ export default function Clients() {
     <section className="content">
       <div className="page-head">
         <div>
-          <div className="page-title">Clients</div>
-          <div className="page-subtitle">Gestion des clients</div>
+          <div className="page-title">Clients — العملاء</div>
+          <div className="page-subtitle">Gestion des clients et de leurs soldes</div>
         </div>
         <button className="primary primary-pill" type="button" onClick={openAdd} disabled={loading}>
           <Plus size={16} />
@@ -83,16 +95,39 @@ export default function Clients() {
         {loading ? (
           <div className="orders-empty">Loading…</div>
         ) : (
-          <ViewClients filtered={filtered} openEdit={openEdit} openDelete={openDelete} />
+          <ViewClients 
+            filtered={filtered} 
+            openEdit={openEdit} 
+            openDelete={openDelete} 
+            openPayment={openPayment}
+            openHistory={openHistory}
+          />
         )}
       </div>
 
       <ClientModal
+        key={`${open ? '1' : '0'}-${editing?.id || 'new'}`}
         open={open}
         editing={editing}
         onClose={() => setOpen(false)}
         onSubmit={submit}
         submitting={submitting}
+      />
+
+      <PaymentModal
+        key={`${paymentOpen ? '1' : '0'}-${payingClient?.id || 'none'}`}
+        open={paymentOpen}
+        client={payingClient}
+        onClose={() => setPaymentOpen(false)}
+        onSubmit={submitPayment}
+        submitting={submitting}
+      />
+
+      <ClientHistoryModal
+        open={historyOpen}
+        client={historyClient}
+        history={clientHistory}
+        onClose={() => setHistoryOpen(false)}
       />
 
       <ConfirmModal

@@ -27,4 +27,3 @@ class Sortie extends Model
         return $this->belongsTo(Utilisateur::class, 'utilisateur_id');
     }
 }
-

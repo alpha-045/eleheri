@@ -35,6 +35,7 @@ export function useSubCategoriesPage(categoryId) {
         .map((s) => ({
           id: s.id,
           nom: s.nom,
+          image: s.image || null,
           produits: Math.floor(Math.random() * 30),
         }))
 
@@ -63,15 +64,12 @@ export function useSubCategoriesPage(categoryId) {
   }, [subCategories])
 
   async function addSub(values) {
-    await apiFetch('/api/sous_categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        categorie_id: Number(categoryId),
-        nom: values.nom,
-        description: null,
-      }),
-    })
+    const form = new FormData()
+    form.append('categorie_id', String(Number(categoryId)))
+    form.append('nom', values.nom)
+    form.append('description', '')
+    form.append('image', values.file)
+    await apiFetch('/api/sous_categories', { method: 'POST', body: form })
     setOpen(false)
     await load()
   }

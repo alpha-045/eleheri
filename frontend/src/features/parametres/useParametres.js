@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 export function useParametres() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [settings, setSettings] = useState(() => {
     // Try loading from localStorage first to mock real implementation
@@ -27,7 +27,6 @@ export function useParametres() {
 
   // Mock API Loading
   useEffect(() => {
-    setLoading(true)
     setTimeout(() => {
       setLoading(false)
     }, 400)

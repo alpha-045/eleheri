@@ -21,6 +21,7 @@ export default function Produits() {
     categoryId,
     sousCategories,
     categories,
+    unites,
     loading,
     error,
     success,
@@ -117,10 +118,12 @@ export default function Produits() {
       )}
 
       <ProductModal
+        key={`${modalMode}-${open ? '1' : '0'}-${editing?.id || 'new'}`}
         open={open}
         mode={modalMode}
         initialValues={modalMode === 'edit' ? editing : null}
         sousCategories={sousCategories}
+        unites={unites}
         onClose={() => setOpen(false)}
         onSubmit={modalMode === 'edit' ? updateProduct : addProduct}
       />

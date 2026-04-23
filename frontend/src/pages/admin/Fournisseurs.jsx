@@ -90,6 +90,7 @@ export default function Fournisseurs() {
       </div>
 
       <FournisseurModal
+        key={`${open ? '1' : '0'}-${editing?.id || 'new'}`}
         open={open}
         editing={editing}
         onClose={() => setOpen(false)}

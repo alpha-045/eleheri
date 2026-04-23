@@ -6,6 +6,7 @@ export default function ToastViewport() {
   const timers = useRef(new Map())
 
   useEffect(() => {
+    const timersMap = timers.current
     function onEvent(ev) {
       if (ev?.type !== 'add' || !ev.item) return
       const item = ev.item
@@ -17,16 +18,16 @@ export default function ToastViewport() {
 
       const t = window.setTimeout(() => {
         setItems((prev) => prev.filter((x) => x.id !== item.id))
-        timers.current.delete(item.id)
+        timersMap.delete(item.id)
       }, Math.max(800, item.timeout))
-      timers.current.set(item.id, t)
+      timersMap.set(item.id, t)
     }
 
     const unsub = subscribe(onEvent)
     return () => {
       unsub()
-      for (const t of timers.current.values()) window.clearTimeout(t)
-      timers.current.clear()
+      for (const t of timersMap.values()) window.clearTimeout(t)
+      timersMap.clear()
     }
   }, [])
 

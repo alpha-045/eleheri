@@ -25,5 +25,25 @@ class ClientController extends CrudController
         'type_client' => ['nullable', 'in:detail,gros'],
         'actif' => ['nullable', 'boolean'],
     ];
+
+    public function history($id)
+    {
+        $client = Client::findOrFail($id);
+        
+        $ventes = \App\Models\Vente::with('facture')
+            ->where('client_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        $paiements = \App\Models\Paiement::where('client_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return response()->json([
+            'client' => $client,
+            'ventes' => $ventes,
+            'paiements' => $paiements
+        ]);
+    }
 }
 

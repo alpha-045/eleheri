@@ -1,0 +1,220 @@
+side bare jdida mais hadouk likaynin fside bare 9dima adire ri filter dakchi limakaynche fhad side bare jdida hydo fhadik side bare
+Dashboard
+
+VENTES — المبيعات
+  Ventes
+  Point de Vente
+  Factures
+  Promotions
+  Packs
+
+PRODUITS — المنتجات
+  Produits
+  Catégories
+  Prix
+
+STOCK — المخزون
+  Stock
+  Mouvement de Stock
+
+PERSONNES — الأشخاص
+  Clients
+  Fournisseurs
+
+SYSTÈME — النظام
+  Utilisateurs
+  Rôles & Permissions
+  Paramètres
+==>point de Vente
+🖥️ Layout — شكل الصفحة
+┌─────────────────────────────────────────────────────────────┐
+│  🔍 Rechercher article / Scanner code-barres...    [F2]     │
+├──────────────────────────────────┬──────────────────────────┤
+│                                  │  👤 Client de passage ▼  │
+│   PRODUITS GRID                  │─────────────────────────│
+│                                  │  🛒 PANIER               │
+│  [Tous] [Épicerie] [Boissons]    │                          │
+│         [Hygiène]                │  article 1...            │
+│                                  │  article 2...            │
+│  ┌──────┐ ┌──────┐ ┌──────┐     │                          │
+│  │ 🫙   │ │ 💧   │ │ 🧼   │     │─────────────────────────│
+│  │Huile │ │ Eau  │ │Savon │     │  Sous-total:   320 MAD   │
+│  │52MAD │ │5 MAD │ │6 MAD │     │  Remise:       -16 MAD   │
+│  └──────┘ └──────┘ └──────┘     │  TOTAL:        304 MAD   │
+│                                  │                          │
+│                                  │  [💵] [💳] [📋] [🖊]    │
+│                                  │                          │
+│                                  │  Reçu: [______] MAD      │
+│                                  │  Rendu:  46.00  MAD      │
+│                                  │                          │
+│                                  │ [🗑 Vider] [✅ Confirmer]│
+└──────────────────────────────────┴──────────────────────────┘
+
+🔄 Flow — خطوة بخطوة
+1️⃣ البحث عن منتج
+كاتب اسم المنتج
+    ↓
+كيظهر فالـ grid
+    ↓
+كليك → يتزاد للـ panier
+2️⃣ Scanner code-barres
+Scanner كيدخل code بسرعة + Enter
+    ↓
+System كيقرأ الـ code_article
+    ↓
+يتزاد مباشرة للـ panier بلا كليك
+3️⃣ الـ Panier
+كل article فيه:
+┌────────────────────────────────────┐
+│ 🫙 Huile d'olive 1L                │
+│ [−] [2] [+]   52.00 MAD  =104 MAD │
+│ Remise: [0]%                  [🗑] │
+└────────────────────────────────────┘
+4️⃣ اختيار Client
+Client de passage (anonymous)
+    ↓ أو
+كتختار client من القائمة
+    ↓
+إلا كان type_client = "gros"
+    ↓
+prix_gros يتطبق تلقائياً ✅
+5️⃣ Confirmer la vente
+كليك ✅ Confirmer
+    ↓
+POST commande_vente
+    ↓
+POST vente
+    ↓
+POST vente_items (كل article)
+    ↓
+POST facture (FAC-2026-0001)
+    ↓
+PATCH stock (−quantite لكل article)
+    ↓
+POST mouvement_stock (sortie)
+    ↓
+✅ Modal confirmation
+6️⃣ Modal بعد الـ confirm
+┌─────────────────────────────┐
+│  ✅ Vente confirmée!         │
+│─────────────────────────────│
+│  FAC-2026-0023              │
+│  Client: Fatima Zahra       │
+│  Total:    304.00 MAD       │
+│  Payé:     350.00 MAD       │
+│  Rendu:     46.00 MAD       │
+│─────────────────────────────│
+│ [🖨 Imprimer] [➕ Nouvelle] │
+└─────────────────────────────┘
+==>1. GET  /api/articles          ← load products
+2. GET  /api/categories        ← filter buttons
+3. GET  /api/clients           ← client dropdown
+4. POST /api/commandes-vente   ← create order
+5. POST /api/ventes            ← create sale
+6. POST /api/vente-items       ← sale details
+7. POST /api/factures          ← generate invoice
+8. PATCH /api/stock/{id}       ← update stock
+9. POST /api/mouvements-stock  ← log movement
+
+==>
+هي وثيقة رسمية كتتولد تلقائياً بعد كل بيع، كتبين:
+┌─────────────────────────────────────┐
+│  🏪 HANOUT PRO                      │
+│  FAC-2026-0023                      │
+│  Date: 22/04/2026                   │
+├─────────────────────────────────────┤
+│  Client: Fatima Zahra               │
+│  Vendeur: Youssef Benali            │
+├─────────────────────────────────────┤
+│  Huile d'olive 1L                   │
+│  2 × 52.00 MAD          = 104.00   │
+│                                     │
+│  Sucre blanc 1kg                    │
+│  3 × 8.50 MAD           =  25.50   │
+├─────────────────────────────────────┤
+│  Sous-total:              129.50    │
+│  Remise:                   -0.00    │
+│  TOTAL TTC:               129.50 MAD│
+├─────────────────────────────────────┤
+│  Paiement: Espèces                  │
+│  Statut: ✅ Payée                   │
+└─────────────────────────────────────┘
+
+فالـ database ديالنا:
+sqlfactures
+├── id
+├── vente_id        → ventes      ← مربوطة ببيع
+├── numero_facture  FAC-2026-0001 ← رقم تلقائي
+├── date_facture
+├── montant_ttc     ← المبلغ الكامل
+├── statut          payée / en_attente / annulée
+└── pdf_path        ← PDF مسجل فالسيرفر
+
+العلاقة:
+vente (1) ──→ (1) facture
+كل بيع عندو فاتورة وحدة — تتولد أوتوماتيك عند الـ confirm
+=>emaple point de vante mli kaykoun client 3ndo credit 
+1️⃣ عند البيع — فالـ Point de Vente
+Total:        200 MAD
+Montant payé: 150 MAD  ← دفع غير هاد
+                ↓
+Reste (دين):   50 MAD  ← يتسجل فـ client.solde
+mode_paiement: "credit"
+2️⃣ فالـ Database — شنو يصرا
+sql-- ventes
+montant_total  = 200.00
+montant_paye   = 150.00
+mode_paiement  = 'credit'
+
+-- clients
+solde = solde + 50.00  ← يتزاد الدين تلقائياً
+3️⃣ فين تتبان — أماكن عرض الدين
+A — فـ page Clients
+┌─────────────────────────────────────┐
+│ 👤 Fatima Zahra          🔴 -50 MAD │
+│ 📞 +212661234501                    │
+│ Type: détail                        │
+└─────────────────────────────────────┘
+B — عند اختيار Client فالـ POS
+[ 👤 Fatima Zahra ▼ ]
+⚠️ Solde impayé: 50.00 MAD
+C — Page détail Client
+┌─────────────────────────────────────┐
+│ 👤 Fatima Zahra                     │
+│ Solde dû: 🔴 50.00 MAD             │
+├─────────────────────────────────────┤
+│ HISTORIQUE ACHATS                   │
+│ 22/04 │ FAC-0023 │ 200 MAD │ 🔴-50 │
+│ 20/04 │ FAC-0019 │ 100 MAD │ ✅    │
+├─────────────────────────────────────┤
+│ [ 💵 Enregistrer paiement ]         │
+└─────────────────────────────────────┘
+
+شنو تزيد فالـ Database
+paiements table — جديدة
+sqlid
+client_id      → clients
+vente_id       → ventes (nullable)
+montant        DECIMAL(10,2)
+mode           ENUM(espèces, carte, virement, chèque)
+note           TEXT
+utilisateur_id → utilisateurs
+created_at
+
+باش تسجل كل مرة كليان جا يخلص الدين ديالو
+
+
+Flow كامل
+بيع بـ credit
+    ↓
+client.solde += montant_restant
+    ↓
+كليان رجع يخلص
+    ↓
+POST /api/paiements
+    ↓
+client.solde -= montant_payé
+    ↓
+solde = 0 ✅ مخلص
+==>gad frontend how lwl et min backend min b3d linkihem
+==>kela marhala wsltiha golhaliya

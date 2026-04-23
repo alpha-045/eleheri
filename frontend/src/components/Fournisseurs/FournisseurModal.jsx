@@ -1,26 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 
 export function FournisseurModal({ open, editing, onClose, onSubmit, submitting }) {
-  const [form, setForm] = useState({
-    nom: '',
-    telephone: '',
-    email: '',
-    adresse: '',
-    actif: true,
-  })
-
-  useEffect(() => {
-    if (open) {
-      setForm({
-        nom: editing?.nom || '',
-        telephone: editing?.telephone || '',
-        email: editing?.email || '',
-        adresse: editing?.adresse || '',
-        actif: Boolean(editing?.actif ?? true),
-      })
-    }
-  }, [open, editing])
+  const [form, setForm] = useState(() => ({
+    nom: editing?.nom || '',
+    telephone: editing?.telephone || '',
+    email: editing?.email || '',
+    adresse: editing?.adresse || '',
+    actif: Boolean(editing?.actif ?? true),
+  }))
 
   if (!open) return null
 

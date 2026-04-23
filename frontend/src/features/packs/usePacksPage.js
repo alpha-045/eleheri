@@ -101,6 +101,19 @@ export function usePacksPage({ search, enabled }) {
     }
   }, [deleting?.id, loadAll])
 
+  const togglePackStatus = useCallback(
+    async (p) => {
+      try {
+        await updatePack(p.id, { ...p, actif: !p.actif })
+        toast({ type: 'success', message: 'Statut mis à jour.' })
+        await loadAll()
+      } catch {
+        toast({ type: 'error', message: 'Erreur lors de la mise à jour.' })
+      }
+    },
+    [loadAll]
+  )
+
   return {
     loading,
     error,
@@ -123,6 +136,7 @@ export function usePacksPage({ search, enabled }) {
     askDelete,
     submit,
     confirmDelete,
+    togglePackStatus,
   }
 }
 

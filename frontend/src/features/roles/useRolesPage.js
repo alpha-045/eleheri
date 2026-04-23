@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 import { toast } from '../../lib/toast'
-import { useAuth } from '../../auth/AuthContext'
+import { useAuth } from '../../auth/authContext'
 
 export function useRolesPage() {
   const { hasPermission } = useAuth()

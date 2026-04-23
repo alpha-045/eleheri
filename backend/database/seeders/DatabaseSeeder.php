@@ -5,11 +5,9 @@ namespace Database\Seeders;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Client;
-use App\Models\CommandeAchat;
 use App\Models\CommandeVente;
 use App\Models\Fournisseur;
 use App\Models\HistoriqueAction;
-use App\Models\LigneCommandeAchat;
 use App\Models\LigneCommandeVente;
 use App\Models\MouvementStock;
 use App\Models\PrixArticle;
@@ -19,6 +17,8 @@ use App\Models\Sortie;
 use App\Models\SousCategorie;
 use App\Models\Stock;
 use App\Models\User;
+use App\Models\Utilisateur;
+use App\Models\Vente;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
 
         $adminRoleId     = DB::table('roles')->where('nom', 'admin')->value('id');
         $vendeurRoleId   = DB::table('roles')->where('nom', 'vendeur')->value('id');
-        $magasinierRoleId= DB::table('roles')->where('nom', 'magasinier')->value('id');
+        $magasinierRoleId = DB::table('roles')->where('nom', 'magasinier')->value('id');
         $agentRoleId     = DB::table('roles')->where('nom', 'agent')->value('id');
         $livreurRoleId   = DB::table('roles')->where('nom', 'livreur')->value('id');
 
@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
                 'role_id'     => $adminRoleId,
                 'nom'         => 'El Herri',
                 'prenom'      => 'Admin',
-                'mot_de_passe'=> Hash::make('password'),
+                'mot_de_passe' => Hash::make('password'),
                 'actif'       => true,
             ]
         );
@@ -67,7 +67,7 @@ class DatabaseSeeder extends Seeder
                 'role_id'     => $vendeurRoleId,
                 'nom'         => 'Benali',
                 'prenom'      => 'Youssef',
-                'mot_de_passe'=> Hash::make('password'),
+                'mot_de_passe' => Hash::make('password'),
                 'actif'       => true,
             ]
         );
@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
                 'role_id'     => $magasinierRoleId,
                 'nom'         => 'Chakir',
                 'prenom'      => 'Hamid',
-                'mot_de_passe'=> Hash::make('password'),
+                'mot_de_passe' => Hash::make('password'),
                 'actif'       => true,
             ]
         );
@@ -89,7 +89,7 @@ class DatabaseSeeder extends Seeder
                 'role_id'     => $agentRoleId,
                 'nom'         => 'Idrissi',
                 'prenom'      => 'Salma',
-                'mot_de_passe'=> Hash::make('password'),
+                'mot_de_passe' => Hash::make('password'),
                 'actif'       => true,
             ]
         );
@@ -100,9 +100,20 @@ class DatabaseSeeder extends Seeder
                 'role_id'     => $livreurRoleId,
                 'nom'         => 'Ouali',
                 'prenom'      => 'Rachid',
-                'mot_de_passe'=> Hash::make('password'),
+                'mot_de_passe' => Hash::make('password'),
                 'actif'       => true,
             ]
+        );
+
+        DB::table('unites')->upsert(
+            [
+                ['nom' => 'pièce', 'description' => null, 'actif' => true, 'created_at' => $now, 'updated_at' => $now],
+                ['nom' => 'kg', 'description' => null, 'actif' => true, 'created_at' => $now, 'updated_at' => $now],
+                ['nom' => 'L', 'description' => null, 'actif' => true, 'created_at' => $now, 'updated_at' => $now],
+                ['nom' => 'm', 'description' => null, 'actif' => true, 'created_at' => $now, 'updated_at' => $now],
+            ],
+            ['nom'],
+            ['description', 'actif', 'updated_at']
         );
 
         if (
@@ -549,7 +560,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         $categories    = collect();
-        $sousCategories= collect();
+        $sousCategories = collect();
         $articles      = collect();
 
         foreach ($catalogue as $catData) {
@@ -561,7 +572,7 @@ class DatabaseSeeder extends Seeder
 
             foreach ($catData['sous_categories'] as $scData) {
                 $sc = SousCategorie::query()->create([
-                    'categorie_id'=> $category->id,
+                    'categorie_id' => $category->id,
                     'nom'         => $scData['nom'],
                     'description' => $scData['description'],
                 ]);
@@ -617,65 +628,6 @@ class DatabaseSeeder extends Seeder
             ]));
         }
 
-        // ─── Commandes d'achat ───────────────────────────────────────────────
-        $commandesAchat = collect();
-        $statutsAchat   = ['reçue','reçue','reçue','reçue','reçue','reçue','brouillon','confirmée','annulée','confirmée'];
-
-        for ($i = 0; $i < 10; $i++) {
-            $statut        = $statutsAchat[$i];
-            $dateCommande  = now()->subDays(rand(5, 45))->format('Y-m-d');
-            $dateReception = $statut === 'reçue' ? now()->subDays(rand(1, 4))->format('Y-m-d') : null;
-
-            $commande = CommandeAchat::query()->create([
-                'fournisseur_id' => $fournisseurs->random()->id,
-                'statut'         => $statut,
-                'date_commande'  => $dateCommande,
-                'date_reception' => $dateReception,
-                'note'           => null,
-                'utilisateur_id' => $magasinier->id,
-            ]);
-
-            $commandesAchat->push($commande);
-            $pickedArticleIds = [];
-            $lignesCount      = rand(2, 5);
-
-            for ($j = 0; $j < $lignesCount; $j++) {
-                $available = $articles->whereNotIn('id', $pickedArticleIds);
-                if ($available->isEmpty()) break;
-
-                $article            = $available->random();
-                $pickedArticleIds[] = $article->id;
-                $prixAchat          = (float) PrixArticle::query()->where('article_id', $article->id)->value('prix_achat');
-                $quantite           = round(rand(10, 80) + rand(0,9)/10, 1);
-                $quantiteRecue      = $statut === 'reçue' ? $quantite : ($statut === 'confirmée' ? round($quantite * 0.5, 1) : 0);
-
-                LigneCommandeAchat::query()->create([
-                    'commande_achat_id' => $commande->id,
-                    'article_id'        => $article->id,
-                    'quantite'          => $quantite,
-                    'quantite_recue'    => $quantiteRecue,
-                    'prix_unitaire'     => $prixAchat,
-                ]);
-
-                if ($quantiteRecue > 0) {
-                    $stock           = Stock::query()->where('article_id', $article->id)->firstOrFail();
-                    $stock->quantite = (float) $stock->quantite + $quantiteRecue;
-                    $stock->save();
-
-                    MouvementStock::query()->create([
-                        'article_id'      => $article->id,
-                        'type_mouvement'  => 'entree',
-                        'motif'           => 'achat',
-                        'quantite'        => $quantiteRecue,
-                        'reference_id'    => $commande->id,
-                        'reference_type'  => 'commande_achat',
-                        'utilisateur_id'  => $magasinier->id,
-                        'note'            => null,
-                    ]);
-                }
-            }
-        }
-
         // ─── Clients marocains réels ─────────────────────────────────────────
         $clientsData = [
             ['nom' => 'Fatima Zahra Bennani',   'telephone' => '+212661234501', 'email' => 'fz.bennani@gmail.com',       'adresse' => '12, rue Ibn Battouta, Fès',               'type_client' => 'detail'],
@@ -708,7 +660,7 @@ class DatabaseSeeder extends Seeder
         $stockByArticle = Stock::query()->pluck('quantite', 'article_id')->map(fn($v) => (float) $v)->toArray();
         $articlesById   = $articles->keyBy('id');
 
-        $statutsVente = ['payée','payée','payée','payée','payée','payée','payée','payée','en_attente','confirmée','annulée','en_attente','payée','confirmée','annulée'];
+        $statutsVente = ['payée', 'payée', 'payée', 'payée', 'payée', 'payée', 'payée', 'payée', 'en_attente', 'confirmée', 'annulée', 'en_attente', 'payée', 'confirmée', 'annulée'];
 
         for ($i = 0; $i < 15; $i++) {
             $statut = $statutsVente[$i];
@@ -719,13 +671,13 @@ class DatabaseSeeder extends Seeder
                 'statut'        => $statut,
                 'date_commande' => now()->subDays(rand(0, 10)),
                 'note'          => null,
-                'utilisateur_id'=> $vendeur->id,
+                'utilisateur_id' => $vendeur->id,
             ]);
 
             $lignesCount  = rand(1, 4);
             $picked       = [];
             $montantTotal = 0.0;
-            $montantRemise= 0.0;
+            $montantRemise = 0.0;
             $linesCreated = 0;
 
             for ($j = 0; $j < $lignesCount; $j++) {
@@ -740,13 +692,13 @@ class DatabaseSeeder extends Seeder
                 if (!$article) continue;
 
                 $prix        = PrixArticle::query()->where('article_id', $articleId)->first();
-                $prixUnitaire= $client->type_client === 'gros'
+                $prixUnitaire = $client->type_client === 'gros'
                     ? (float) ($prix->prix_gros ?? $prix->prix_vente)
                     : (float) $prix->prix_vente;
 
                 $quantiteMax = max(1.0, min(20.0, $stockByArticle[$articleId]));
-                $quantite    = round(rand(1, (int)$quantiteMax) + rand(0, 9)/10, 1);
-                $remise      = (rand(1, 5) === 1) ? round(rand(5, 10) + rand(0,9)/10, 2) : 0;
+                $quantite    = round(rand(1, (int)$quantiteMax) + rand(0, 9) / 10, 1);
+                $remise      = (rand(1, 5) === 1) ? round(rand(5, 10) + rand(0, 9) / 10, 2) : 0;
 
                 LigneCommandeVente::query()->create([
                     'commande_vente_id' => $commande->id,
@@ -760,7 +712,7 @@ class DatabaseSeeder extends Seeder
                 $ligneTotal    = $quantite * $prixUnitaire;
                 $ligneRemise   = $ligneTotal * ($remise / 100.0);
                 $montantTotal += $ligneTotal;
-                $montantRemise+= $ligneRemise;
+                $montantRemise += $ligneRemise;
 
                 if ($statut === 'payée') {
                     $stockByArticle[$articleId] -= $quantite;
@@ -783,13 +735,13 @@ class DatabaseSeeder extends Seeder
             if ($statut === 'payée' && $linesCreated > 0) {
                 $montantPaye = max(0.0, $montantTotal - $montantRemise);
 
-                $vente = \App\Models\Vente::query()->create([
+                $vente = Vente::query()->create([
                     'commande_vente_id' => $commande->id,
                     'client_id'         => $commande->client_id,
                     'montant_total'     => $montantTotal,
                     'montant_remise'    => $montantRemise,
                     'montant_paye'      => $montantPaye,
-                    'mode_paiement'     => collect(['espèces','carte','virement','chèque'])->random(),
+                    'mode_paiement'     => collect(['espèces', 'carte', 'virement', 'chèque'])->random(),
                     'date_vente'        => now(),
                     'utilisateur_id'    => $vendeur->id,
                 ]);
@@ -798,11 +750,11 @@ class DatabaseSeeder extends Seeder
                     'utilisateur_id'   => $vendeur->id,
                     'action'           => 'payer',
                     'table_cible'      => 'commandes_vente',
-                    'enregistrement_id'=> $commande->id,
+                    'enregistrement_id' => $commande->id,
                     'details'          => [
                         'vente_id'      => $vente->id,
                         'montant_total' => $montantTotal,
-                        'montant_remise'=> $montantRemise,
+                        'montant_remise' => $montantRemise,
                         'montant_paye'  => $montantPaye,
                     ],
                 ]);
@@ -819,7 +771,7 @@ class DatabaseSeeder extends Seeder
 
             $articleId = (int) array_rand($candidates);
             $qteMax    = max(1.0, min(10.0, $stockByArticle[$articleId]));
-            $qte       = round(rand(1, (int)$qteMax) + rand(0,9)/10, 1);
+            $qte       = round(rand(1, (int)$qteMax) + rand(0, 9) / 10, 1);
             $motif     = collect(['perte', 'don', 'ajustement'])->random();
 
             $sortie = Sortie::query()->create([
@@ -827,7 +779,7 @@ class DatabaseSeeder extends Seeder
                 'motif'         => $motif,
                 'quantite'      => $qte,
                 'note'          => null,
-                'utilisateur_id'=> $magasinier->id,
+                'utilisateur_id' => $magasinier->id,
             ]);
 
             $stockByArticle[$articleId] -= $qte;
@@ -863,8 +815,8 @@ class DatabaseSeeder extends Seeder
         }
 
         // ─── Historique actions ──────────────────────────────────────────────
-        $tables = ['categories','sous_categories','articles','stock','prix_articles','fournisseurs','commandes_achat','lignes_commande_achat','clients','commandes_vente','lignes_commande_vente','ventes','promotions','mouvements_stock','sorties'];
-        $actions= ['create','update','delete','import','export'];
+        $tables = ['categories', 'sous_categories', 'articles', 'stock', 'prix_articles', 'fournisseurs', 'commandes_achat', 'lignes_commande_achat', 'clients', 'commandes_vente', 'lignes_commande_vente', 'ventes', 'promotions', 'mouvements_stock', 'sorties'];
+        $actions = ['create', 'update', 'delete', 'import', 'export'];
         $users  = [$admin->id, $vendeur->id, $magasinier->id];
 
         for ($i = 0; $i < 12; $i++) {
@@ -872,7 +824,7 @@ class DatabaseSeeder extends Seeder
                 'utilisateur_id'   => $users[array_rand($users)],
                 'action'           => $actions[array_rand($actions)],
                 'table_cible'      => $tables[array_rand($tables)],
-                'enregistrement_id'=> rand(1, 50),
+                'enregistrement_id' => rand(1, 50),
                 'details'          => null,
             ]);
         }

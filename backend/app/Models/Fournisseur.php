@@ -20,10 +20,5 @@ class Fournisseur extends Model
     protected $casts = [
         'actif' => 'boolean',
     ];
-
-    public function commandesAchat(): HasMany
-    {
-        return $this->hasMany(CommandeAchat::class, 'fournisseur_id');
-    }
 }
 

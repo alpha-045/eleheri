@@ -1,29 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Search, Trash2, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Trash2, X } from 'lucide-react'
 
 export default function PackModal({ open, mode, initialValues, articles, onClose, onSubmit }) {
-  const [nom, setNom] = useState('')
-  const [description, setDescription] = useState('')
-  const [prixVente, setPrixVente] = useState('')
-  const [actif, setActif] = useState(true)
-  const [items, setItems] = useState([])
-  const [articleQuery, setArticleQuery] = useState('')
-
-  useEffect(() => {
-    if (!open) return
-    setNom(initialValues?.nom ?? '')
-    setDescription(initialValues?.description ?? '')
-    setPrixVente(initialValues?.prix_vente != null ? String(initialValues.prix_vente) : '')
-    setActif(initialValues?.actif != null ? !!initialValues.actif : true)
+  const [nom, setNom] = useState(() => initialValues?.nom ?? '')
+  const [description, setDescription] = useState(() => initialValues?.description ?? '')
+  const [prixVente, setPrixVente] = useState(() => (initialValues?.prix_vente != null ? String(initialValues.prix_vente) : ''))
+  const [actif, setActif] = useState(() => (initialValues?.actif != null ? !!initialValues.actif : true))
+  const [items, setItems] = useState(() => {
     const initItems = Array.isArray(initialValues?.items)
       ? initialValues.items.map((it) => ({
           article_id: it.article_id ?? it.article?.id,
           quantite: it.quantite != null ? String(it.quantite) : '1',
         }))
       : []
-    setItems(initItems.filter((x) => x.article_id != null))
-    setArticleQuery('')
-  }, [open, initialValues])
+    return initItems.filter((x) => x.article_id != null)
+  })
 
   const canSubmit = nom.trim() && prixVente !== '' && items.length > 0
 
@@ -44,7 +35,6 @@ export default function PackModal({ open, mode, initialValues, articles, onClose
 
   function addItem(article) {
     setItems((prev) => [...prev, { article_id: article.id, quantite: '1' }])
-    setArticleQuery('')
   }
 
   function updateQty(articleId, qty) {

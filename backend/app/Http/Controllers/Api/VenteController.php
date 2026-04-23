@@ -16,7 +16,7 @@ class VenteController extends CrudController
         'montant_total' => ['required', 'numeric', 'min:0'],
         'montant_remise' => ['nullable', 'numeric', 'min:0'],
         'montant_paye' => ['required', 'numeric', 'min:0'],
-        'mode_paiement' => ['nullable', 'in:espèces,carte,virement,chèque'],
+        'mode_paiement' => ['nullable', 'string'],
         'date_vente' => ['nullable', 'date'],
         'utilisateur_id' => ['nullable', 'integer', 'exists:utilisateurs,id'],
     ];
@@ -25,8 +25,7 @@ class VenteController extends CrudController
         'montant_total' => ['sometimes', 'required', 'numeric', 'min:0'],
         'montant_remise' => ['nullable', 'numeric', 'min:0'],
         'montant_paye' => ['sometimes', 'required', 'numeric', 'min:0'],
-        'mode_paiement' => ['nullable', 'in:espèces,carte,virement,chèque'],
+        'mode_paiement' => ['nullable', 'string'],
         'date_vente' => ['nullable', 'date'],
     ];
 }
-

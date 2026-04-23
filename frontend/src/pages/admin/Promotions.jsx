@@ -26,17 +26,18 @@ export default function Promotions() {
     openDelete,
     savePromotion,
     confirmDelete,
+    togglePromotionStatus,
   } = usePromotionsPage()
 
   return (
     <section className="content">
       <div className="page-head">
         <div>
-          <div className="page-title">Promotions</div>
-          <div className="page-subtitle">Gérer les offres et codes promo</div>
+          <h1 className="page-title">Promotions </h1>
+          <p className="page-subtitle">Gérez les offres spéciales et les codes promotionnels</p>
         </div>
         <button className="primary primary-pill" type="button" onClick={openCreate}>
-          <Plus size={16} />
+          <Plus size={18} />
           Créer Promotion
         </button>
       </div>
@@ -46,12 +47,18 @@ export default function Promotions() {
       <Alert type="error" message={error} />
 
       {loading ? (
-        <div className="products-empty">Loading…</div>
+        <div className="loading-state"><div className="spinner" /></div>
       ) : (
-        <ViewPromotions visible={visible} openEdit={openEdit} openDelete={openDelete} />
+        <ViewPromotions 
+          visible={visible} 
+          openEdit={openEdit} 
+          openDelete={openDelete} 
+          toggleStatus={togglePromotionStatus}
+        />
       )}
 
       <PromoModal
+        key={`${modalOpen ? '1' : '0'}-${editing?.id || 'new'}`}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={savePromotion}
@@ -72,4 +79,3 @@ export default function Promotions() {
     </section>
   )
 }
-

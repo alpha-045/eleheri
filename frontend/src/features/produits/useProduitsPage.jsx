@@ -8,6 +8,7 @@ import {
   fetchArticles,
   fetchCategories,
   fetchSousCategories,
+  fetchUnites,
   updateArticle,
   updateArticleWithImage,
   updatePrixArticle,
@@ -59,6 +60,7 @@ export function useProduitsPage({ search, setSearch, navigate }) {
   const [products, setProducts] = useState([])
   const [sousCategories, setSousCategories] = useState([])
   const [categories, setCategories] = useState([])
+  const [unites, setUnites] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -69,9 +71,15 @@ export function useProduitsPage({ search, setSearch, navigate }) {
     setSuccess('')
     setLoading(true)
     try {
-      const [articles, sc, cat] = await Promise.all([fetchArticles(), fetchSousCategories(), fetchCategories()])
+      const [articles, sc, cat, unitesRes] = await Promise.all([
+        fetchArticles(),
+        fetchSousCategories(),
+        fetchCategories(),
+        fetchUnites(),
+      ])
       setSousCategories(sc)
       setCategories(cat)
+      setUnites(Array.isArray(unitesRes) ? unitesRes : [])
       setProducts(mapArticles({ articles, categories: cat, sousCategories: sc }))
     } catch (e) {
       setError(e?.message || 'Erreur')
@@ -292,6 +300,7 @@ export function useProduitsPage({ search, setSearch, navigate }) {
     products,
     sousCategories,
     categories,
+    unites,
     loading,
     error,
     success,

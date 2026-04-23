@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '../../auth/AuthContext'
+import { useAuth } from '../../auth/authContext'
 import ToastViewport from '../ToastViewport'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
@@ -9,7 +9,7 @@ export default function AdminLayout() {
   const { user, loading, logout } = useAuth()
   const location = useLocation()
   const [search, setSearch] = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 900)
 
   if (loading) return <div className="page">Loading…</div>
 
@@ -29,6 +29,8 @@ export default function AdminLayout() {
           onSearchChange={setSearch}
           onLogout={logout}
           onToggleSidebar={() => setSidebarOpen((v) => !v)}
+          sidebarOpen={sidebarOpen}
+          
         />
         <Outlet context={{ search, setSearch }} />
       </main>

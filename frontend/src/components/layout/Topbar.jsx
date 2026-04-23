@@ -1,9 +1,9 @@
-import { ChevronDown, LogOut, Menu, Search, Settings2, User } from 'lucide-react'
+import { ChevronDown, LogOut, Menu, Search, Settings2, User, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import NotificationBell from '../notifications/NotificationBell'
 
-export default function Topbar({ user, search, onSearchChange, onLogout, onToggleSidebar }) {
+export default function Topbar({ user, search, onSearchChange, onLogout, onToggleSidebar,sidebarOpen }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -20,7 +20,7 @@ export default function Topbar({ user, search, onSearchChange, onLogout, onToggl
   return (
     <header className="topbar">
       <button className="icon-btn icon-btn-menu" type="button" onClick={onToggleSidebar} aria-label="Menu">
-        <Menu size={18} color="#64748b" />
+        {sidebarOpen ? <X size={18} color="#64748b" /> : <Menu size={18} color="#64748b" />}
       </button>
       <div className="topbar-search">
         <Search size={16} color="#94a3b8" />

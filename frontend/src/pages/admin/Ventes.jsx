@@ -133,7 +133,6 @@ export default function Ventes() {
                   <th>Commande</th>
                   <th>Client</th>
                   <th>Total</th>
-                  <th>Remise</th>
                   <th>Payé</th>
                   <th>Mode</th>
                   <th>Date</th>
@@ -149,7 +148,6 @@ export default function Ventes() {
                     </td>
                     <td>{v?.client?.nom || "—"}</td>
                     <td>{Number(v?.montant_total ?? 0)} MAD</td>
-                    <td>{Number(v?.montant_remise ?? 0)} MAD</td>
                     <td>{Number(v?.montant_paye ?? 0)} MAD</td>
                     <td>
                       <span className="type-badge">
@@ -230,12 +228,6 @@ export default function Ventes() {
               </div>
 
               <div className="form-grid">
-                <div>
-                  <div className="detail-label">Remise</div>
-                  <div className="detail-value detail-strong">
-                    {Number(selected?.montant_remise ?? 0)} MAD
-                  </div>
-                </div>
                 <div>
                   <div className="detail-label">Mode de paiement</div>
                   <div className="detail-value detail-strong">

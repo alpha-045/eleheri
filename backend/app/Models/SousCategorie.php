@@ -14,6 +14,7 @@ class SousCategorie extends Model
         'categorie_id',
         'nom',
         'description',
+        'image',
     ];
 
     public function categorie(): BelongsTo
@@ -26,4 +27,3 @@ class SousCategorie extends Model
         return $this->hasMany(Article::class, 'sous_categorie_id');
     }
 }
-

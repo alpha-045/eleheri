@@ -1,12 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Save } from 'lucide-react'
 
 export function SecuritySettings({ settings, submitting, onSave }) {
-  const [form, setForm] = useState({ ...settings })
-
-  useEffect(() => {
-    setForm({ ...settings })
-  }, [settings])
+  const [form, setForm] = useState(() => ({ ...(settings || {}) }))
 
   function handleChange(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))

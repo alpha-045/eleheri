@@ -2,33 +2,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { Tag, X } from 'lucide-react'
 
 export function PromoModal({ open, onClose, onSubmit, initial, targets }) {
-  const [name, setName] = useState('')
-  const [code, setCode] = useState('')
-  const [type, setType] = useState('pourcentage')
-  const [value, setValue] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [minPanier, setMinPanier] = useState('')
-  const [targetType, setTargetType] = useState('category')
-  const [targetId, setTargetId] = useState('')
+  const [name, setName] = useState(() => initial?.name || '')
+  const [code, setCode] = useState(() => initial?.code_promo || '')
+  const [type, setType] = useState(() => initial?.type || 'pourcentage')
+  const [value, setValue] = useState(() => (initial?.value != null ? String(initial.value) : ''))
+  const [startDate, setStartDate] = useState(() => initial?.start_date?.split('T')[0] || '')
+  const [endDate, setEndDate] = useState(() => initial?.end_date?.split('T')[0] || '')
+  const [minPanier, setMinPanier] = useState(() => (initial?.panier_min != null ? String(initial.panier_min) : ''))
+  const [targetType, setTargetType] = useState(() => initial?.target_type || 'category')
+  const [targetId, setTargetId] = useState(() => (initial?.target_id != null ? String(initial.target_id) : ''))
 
   const canSubmit = useMemo(() => {
     return name.trim() && value !== '' && startDate && endDate && targetType && targetId
   }, [name, value, startDate, endDate, targetType, targetId])
-
-  useEffect(() => {
-    if (!open) return
-    const p = initial || null
-    setName(p?.name || '')
-    setCode(p?.code_promo || '')
-    setType(p?.type || 'pourcentage')
-    setValue(p?.value != null ? String(p.value) : '')
-    setStartDate(p?.start_date || '')
-    setEndDate(p?.end_date || '')
-    setMinPanier(p?.panier_min != null ? String(p.panier_min) : '')
-    setTargetType(p?.target_type || 'category')
-    setTargetId(p?.target_id != null ? String(p.target_id) : '')
-  }, [open, initial])
 
   useEffect(() => {
     if (!open) return
@@ -39,15 +25,17 @@ export function PromoModal({ open, onClose, onSubmit, initial, targets }) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, onClose])
 
-  useEffect(() => {
-    if (!open) return
-    const list = targets[targetType] || []
-    if (!list.length) {
-      setTargetId('')
-      return
-    }
-    if (!targetId) setTargetId(String(list[0].id))
-  }, [open, targetType]) // Removed targetId from deps as it creates loops
+  const targetList = useMemo(() => {
+    const t = targets || {}
+    const list = t[targetType] || []
+    return Array.isArray(list) ? list : []
+  }, [targets, targetType])
+
+  const effectiveTargetId = useMemo(() => {
+    if (!targetList.length) return ''
+    if (targetId && targetList.some((t) => String(t.id) === String(targetId))) return String(targetId)
+    return String(targetList[0].id)
+  }, [targetList, targetId])
 
   if (!open) return null
 
@@ -64,7 +52,7 @@ export function PromoModal({ open, onClose, onSubmit, initial, targets }) {
       start_date: startDate,
       end_date: endDate,
       target_type: targetType,
-      target_id: Number(targetId),
+      target_id: Number(effectiveTargetId),
       is_active: true,
     })
   }
@@ -135,8 +123,8 @@ export function PromoModal({ open, onClose, onSubmit, initial, targets }) {
                   </select>
                 </div>
                 <div className="select-wrap">
-                  <select className="form-select" value={targetId} onChange={(e) => setTargetId(e.target.value)}>
-                    {(targets[targetType] || []).map((t) => (
+                  <select className="form-select" value={effectiveTargetId} onChange={(e) => setTargetId(e.target.value)}>
+                    {targetList.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.label}
                       </option>
@@ -167,14 +155,15 @@ export function PromoModal({ open, onClose, onSubmit, initial, targets }) {
                   </div>
                   <div className="pc-name">{name || 'Nouvelle Promotion'}</div>
                   <div className="pc-dates">
-                    {startDate ? `Du ${startDate}` : ''} {endDate ? `au ${endDate}` : ''}
+                    {startDate && <span>Du <b>{new Date(startDate).toLocaleDateString()}</b></span>}
+                    {endDate && <span> au <b>{new Date(endDate).toLocaleDateString()}</b></span>}
                   </div>
                   
                   <div className="pc-target">
-                     Applicable sur {targetType === 'category' ? 'Catégorie' : targetType === 'article' ? 'Article' : 'Client'} : <b>{(targets[targetType] || []).find(t => String(t.id) === String(targetId))?.label || 'Sélection'}</b>
+                     Applicable sur {targetType === 'category' ? 'Catégorie' : targetType === 'article' ? 'Produit' : 'Client'} : <b>{targetList.find(t => String(t.id) === String(effectiveTargetId))?.label || '—'}</b>
                   </div>
                   {Number(minPanier) > 0 && (
-                    <div className="pc-min">Min. d'achat: <b>{minPanier} DH</b></div>
+                    <div className="pc-min">Minimum d'achat: <b>{Number(minPanier).toFixed(2)} DH</b></div>
                   )}
                 </div>
               ) : (

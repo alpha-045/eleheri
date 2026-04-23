@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { apiFetch, getToken, setToken } from '../lib/api'
-
-const AuthContext = createContext(null)
+import { AuthContext } from './authContext'
 
 const USER_KEY = 'gs_user'
 const FAKE_TOKEN = 'fake-token'
@@ -76,7 +75,8 @@ export function AuthProvider({ children }) {
     if (token && token !== FAKE_TOKEN) {
       try {
         await apiFetch('/api/auth/logout', { method: 'POST' })
-      } catch {
+      } catch (e) {
+        void e
       }
     }
 
@@ -142,10 +142,4 @@ export function AuthProvider({ children }) {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('AuthProvider missing')
-  return ctx
 }

@@ -19,7 +19,7 @@ class ArticleController extends CrudController
         'code_article' => ['required', 'string', 'max:50', 'unique:articles,code_article'],
         'nom' => ['required', 'string', 'max:150'],
         'description' => ['nullable', 'string'],
-        'unite' => ['nullable', 'string', 'max:20'],
+        'unite' => ['nullable', 'string', 'max:20', 'exists:unites,nom'],
         'image' => ['required','image'],
         'actif' => ['nullable', 'boolean'],
     ];
@@ -29,7 +29,7 @@ class ArticleController extends CrudController
         'code_article' => ['sometimes', 'required', 'string', 'max:50'],
         'nom' => ['sometimes', 'required', 'string', 'max:150'],
         'description' => ['nullable', 'string'],
-        'unite' => ['nullable', 'string', 'max:20'],
+        'unite' => ['nullable', 'string', 'max:20', 'exists:unites,nom'],
         'image' => ['nullable', 'image'],
         'actif' => ['nullable', 'boolean'],
     ];

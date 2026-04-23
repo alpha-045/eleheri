@@ -52,8 +52,8 @@ export default function Utilisateurs({ fixedRole }) {
     )
   }
 
-  const pageTitle = fixedRole === 'agent' ? 'Agents' : fixedRole === 'livreur' ? 'Livreurs' : 'Utilisateurs'
-  const pageSub = fixedRole ? 'Gestion des comptes' : "Gestion des agents et des livreurs"
+  const pageTitle = fixedRole === 'agent' ? 'Agents' : 'Utilisateurs'
+  const pageSub = fixedRole ? 'Gestion des comptes' : 'Gestion des agents'
 
   return (
     <section className="content users">
@@ -77,9 +77,6 @@ export default function Utilisateurs({ fixedRole }) {
           <div className="users-tabs">
             <button className={roleFilter === 'agent' ? 'users-tab users-tab-active' : 'users-tab'} type="button" onClick={() => setRoleFilter('agent')}>
               Agents
-            </button>
-            <button className={roleFilter === 'livreur' ? 'users-tab users-tab-active' : 'users-tab'} type="button" onClick={() => setRoleFilter('livreur')}>
-              Livreurs
             </button>
             <button className={roleFilter === 'all' ? 'users-tab users-tab-active' : 'users-tab'} type="button" onClick={() => setRoleFilter('all')}>
               Tous
@@ -131,6 +128,7 @@ export default function Utilisateurs({ fixedRole }) {
       </div>
 
       <UserModal
+        key={`${modalMode}-${open ? '1' : '0'}-${editing?.id || 'new'}`}
         open={open}
         mode={modalMode}
         roles={allowedRoles}

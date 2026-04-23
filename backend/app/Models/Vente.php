@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Vente extends Model
 {
@@ -24,6 +25,11 @@ class Vente extends Model
         'date_vente' => 'datetime',
     ];
 
+    public function items()
+    {
+        return $this->hasMany(LigneCommandeVente::class, 'commande_vente_id', 'commande_vente_id');
+    }
+
     public function commande(): BelongsTo
     {
         return $this->belongsTo(CommandeVente::class, 'commande_vente_id');
@@ -38,5 +44,9 @@ class Vente extends Model
     {
         return $this->belongsTo(Utilisateur::class, 'utilisateur_id');
     }
-}
 
+    public function facture(): HasOne
+    {
+        return $this->hasOne(Facture::class, 'vente_id');
+    }
+}

@@ -1,24 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { RolePicker } from './RolePicker'
 
 export function UserModal({ open, mode, roles, initialValues, onClose, onSubmit }) {
-  const [nom, setNom] = useState('')
-  const [prenom, setPrenom] = useState('')
-  const [email, setEmail] = useState('')
-  const [roleId, setRoleId] = useState('')
+  const [nom, setNom] = useState(() => initialValues?.nom ?? '')
+  const [prenom, setPrenom] = useState(() => initialValues?.prenom ?? '')
+  const [email, setEmail] = useState(() => initialValues?.email ?? '')
+  const [roleId, setRoleId] = useState(() => (initialValues?.role_id != null ? String(initialValues.role_id) : ''))
   const [password, setPassword] = useState('')
-  const [actif, setActif] = useState(true)
-
-  useEffect(() => {
-    if (!open) return
-    setNom(initialValues?.nom ?? '')
-    setPrenom(initialValues?.prenom ?? '')
-    setEmail(initialValues?.email ?? '')
-    setRoleId(initialValues?.role_id != null ? String(initialValues.role_id) : '')
-    setPassword('')
-    setActif(initialValues?.actif != null ? !!initialValues.actif : true)
-  }, [open, initialValues])
+  const [actif, setActif] = useState(() => (initialValues?.actif != null ? !!initialValues.actif : true))
 
   if (!open) return null
 

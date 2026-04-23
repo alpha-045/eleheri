@@ -2,7 +2,7 @@ import { Bell } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 import { toast } from '../../lib/toast'
-import { useAuth } from '../../auth/AuthContext'
+import { useAuth } from '../../auth/authContext'
 
 function formatWhen(iso) {
   if (!iso) return ''
@@ -64,7 +64,7 @@ export default function NotificationBell() {
     load()
     const t = window.setInterval(load, 20000)
     return () => window.clearInterval(t)
-  }, [])
+  }, [hasPermission])
 
   useEffect(() => {
     function onDocClick(e) {

@@ -13,15 +13,18 @@ export default function ProductModal({
   mode = "create",
   initialValues,
   sousCategories,
+  unites,
   onClose,
   onSubmit,
 }) {
-  const [nom, setNom] = useState("");
-  const [prix, setPrix] = useState("");
-  const [stock, setStock] = useState("");
-  const [sousCategorieId, setSousCategorieId] = useState("");
-  const [unite, setUnite] = useState("pièce");
-  const [codeArticle, setCodeArticle] = useState("");
+  const [nom, setNom] = useState(() => initialValues?.nom ?? "");
+  const [prix, setPrix] = useState(() => (initialValues?.prix != null ? String(initialValues.prix) : ""));
+  const [stock, setStock] = useState(() => (initialValues?.seuil_min != null ? String(initialValues.seuil_min) : ""));
+  const [sousCategorieId, setSousCategorieId] = useState(() =>
+    initialValues?.sous_categorie_id != null ? String(initialValues.sous_categorie_id) : "",
+  );
+  const [unite, setUnite] = useState(() => initialValues?.unite ?? "pièce");
+  const [codeArticle, setCodeArticle] = useState(() => initialValues?.code_article ?? "");
   const [file, setFile] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [cameraError, setCameraError] = useState("");
@@ -29,6 +32,18 @@ export default function ProductModal({
 
   // Video ID defined here so it's available everywhere
   const videoId = "product-scan-video";
+
+  const uniteOptions = useMemo(() => {
+    const listFromApi = Array.isArray(unites) ? unites.map((u) => u?.nom).filter(Boolean) : [];
+    const base = listFromApi.length ? listFromApi : ["pièce", "kg", "L", "m"];
+    const unique = [];
+    for (const v of base) {
+      const s = String(v);
+      if (!unique.includes(s)) unique.push(s);
+    }
+    if (unite && !unique.includes(unite)) unique.unshift(unite);
+    return unique;
+  }, [unites, unite]);
 
   const canSubmit = useMemo(() => {
     const imageOk = mode === "edit" ? true : !!file;
@@ -40,28 +55,7 @@ export default function ProductModal({
       sousCategorieId &&
       unite
     );
-  }, [codeArticle, nom, prix, stock, sousCategorieId, unite, file, mode]);
-
-  // --- MOVED ALL USEEFFECTS HERE ---
-
-  useEffect(() => {
-    if (!open) return;
-    setNom(initialValues?.nom ?? "");
-    setPrix(initialValues?.prix != null ? String(initialValues.prix) : "");
-    setStock(
-      initialValues?.seuil_min != null ? String(initialValues.seuil_min) : "",
-    );
-    setSousCategorieId(
-      initialValues?.sous_categorie_id != null
-        ? String(initialValues.sous_categorie_id)
-        : "",
-    );
-    setUnite(initialValues?.unite ?? "pièce");
-    setCodeArticle(initialValues?.code_article ?? "");
-    setFile(null);
-    setCameraError("");
-    setScanning(false);
-  }, [open, initialValues, mode]);
+  }, [codeArticle, nom, prix, sousCategorieId, unite, file, mode]);
 
   function stopScanner() {
     try {
@@ -79,6 +73,21 @@ export default function ProductModal({
     setScanning(false);
   }
 
+  function stopScannerNoState() {
+    try {
+      readerRef.current?.reset?.();
+    } catch (e) {
+      void e;
+    }
+    readerRef.current = null;
+    const video = document.getElementById(videoId);
+    const stream = video?.srcObject;
+    if (stream && typeof stream.getTracks === "function") {
+      for (const t of stream.getTracks()) t.stop();
+    }
+    if (video) video.srcObject = null;
+  }
+
   useEffect(() => {
     if (open) return;
     try {
@@ -87,7 +96,7 @@ export default function ProductModal({
       void e;
     }
     readerRef.current = null;
-    setScanning(false);
+    stopScannerNoState();
   }, [open]);
 
   // Wrap handleClose in useCallback to avoid dependency issues in the useEffect above
@@ -297,10 +306,11 @@ export default function ProductModal({
                   value={unite}
                   onChange={(e) => setUnite(e.target.value)}
                 >
-                  <option value="pièce">pièce</option>
-                  <option value="kg">kg</option>
-                  <option value="L">L</option>
-                  <option value="m">m</option>
+                  {uniteOptions.map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="select-ico" size={16} />
               </div>

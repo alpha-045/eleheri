@@ -1106,6 +1106,7 @@ export default function SortieStock() {
       ) : null}
 
       <ProductModal
+        key={`${addProductOpen ? '1' : '0'}-${missingCode || 'none'}`}
         open={addProductOpen}
         mode="create"
         initialValues={missingCode ? { code_article: missingCode } : null}

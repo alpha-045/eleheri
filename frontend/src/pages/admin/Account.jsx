@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../../auth/AuthContext'
+import { useAuth } from '../../auth/authContext'
 import Alert from '../../components/Alert'
 import '../../styles/account.css'
 

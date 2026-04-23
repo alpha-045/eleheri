@@ -12,6 +12,7 @@ class Category extends Model
     protected $fillable = [
         'nom',
         'description',
+        'image',
     ];
 
     public function sousCategories(): HasMany
@@ -19,4 +20,3 @@ class Category extends Model
         return $this->hasMany(SousCategorie::class, 'categorie_id');
     }
 }
-

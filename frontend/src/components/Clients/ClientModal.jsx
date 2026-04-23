@@ -1,28 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 
 export function ClientModal({ open, editing, onClose, onSubmit, submitting }) {
-  const [form, setForm] = useState({
-    nom: '',
-    telephone: '',
-    email: '',
-    adresse: '',
-    type_client: 'detail',
-    actif: true,
-  })
-
-  useEffect(() => {
-    if (open) {
-      setForm({
-        nom: editing?.nom || '',
-        telephone: editing?.telephone || '',
-        email: editing?.email || '',
-        adresse: editing?.adresse || '',
-        type_client: (editing?.type_client || 'detail').toString(),
-        actif: Boolean(editing?.actif ?? true),
-      })
-    }
-  }, [open, editing])
+  const [form, setForm] = useState(() => ({
+    nom: editing?.nom || '',
+    telephone: editing?.telephone || '',
+    email: editing?.email || '',
+    adresse: editing?.adresse || '',
+    type_client: (editing?.type_client || 'detail').toString(),
+    actif: Boolean(editing?.actif ?? true),
+  }))
 
   if (!open) return null
 

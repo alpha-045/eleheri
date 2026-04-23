@@ -140,7 +140,7 @@ return new class extends Migration
             $table->decimal('montant_total', 10, 2);
             $table->decimal('montant_remise', 10, 2)->default(0);
             $table->decimal('montant_paye', 10, 2);
-            $table->enum('mode_paiement', ['espèces', 'carte', 'virement', 'chèque'])->default('espèces');
+            $table->string('mode_paiement', 50)->default('espèces');
             $table->timestamp('date_vente')->useCurrent();
             $table->foreignId('utilisateur_id')->nullable()->constrained('utilisateurs')->nullOnDelete();
             $table->timestamps();
@@ -161,16 +161,6 @@ return new class extends Migration
             $table->index(['target_type', 'target_id']);
         });
 
-        Schema::create('sorties', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('article_id')->constrained('articles')->restrictOnDelete();
-            $table->enum('motif', ['perte', 'don', 'ajustement']);
-            $table->decimal('quantite', 10, 2);
-            $table->text('note')->nullable();
-            $table->foreignId('utilisateur_id')->nullable()->constrained('utilisateurs')->nullOnDelete();
-            $table->timestamps();
-        });
-
         Schema::create('mouvements_stock', function (Blueprint $table) {
             $table->id();
             $table->foreignId('article_id')->constrained('articles')->restrictOnDelete();
@@ -186,11 +176,21 @@ return new class extends Migration
             $table->index(['reference_type', 'reference_id']);
         });
 
+        Schema::create('sorties', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('article_id')->constrained('articles')->cascadeOnDelete();
+            $table->enum('motif', ['perte', 'don', 'retour', 'ajustement']);
+            $table->decimal('quantite', 10, 2);
+            $table->text('note')->nullable();
+            $table->foreignId('utilisateur_id')->nullable()->constrained('utilisateurs')->nullOnDelete();
+            $table->timestamps();
+        });
+
         Schema::create('historique_actions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('utilisateur_id')->nullable()->constrained('utilisateurs')->nullOnDelete();
-            $table->string('action', 100);
-            $table->string('table_cible', 100)->nullable();
+            $table->string('action', 50);
+            $table->string('table_cible', 50);
             $table->unsignedBigInteger('enregistrement_id')->nullable();
             $table->json('details')->nullable();
             $table->timestamps();
@@ -201,7 +201,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('historique_actions');
         Schema::dropIfExists('mouvements_stock');
-        Schema::dropIfExists('sorties');
         Schema::dropIfExists('promotions');
         Schema::dropIfExists('ventes');
         Schema::dropIfExists('lignes_commande_vente');
@@ -217,5 +216,8 @@ return new class extends Migration
         Schema::dropIfExists('categories');
         Schema::dropIfExists('utilisateurs');
         Schema::dropIfExists('roles');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('users');
     }
 };

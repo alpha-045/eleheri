@@ -1,18 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/authContext'
 
 export default function AdminDashboard() {
   const { user, loading, logout } = useAuth()
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('all')
   const [view, setView] = useState('grid')
-
-  if (loading) return <div className="page">Loading…</div>
-
-  if (!user) return <Navigate to="/login" replace />
-
-  if ((user?.role?.nom || '') !== 'admin') return <Navigate to="/login" replace />
 
   const categories = [
     { id: 'all', label: 'Toutes catégories' },
@@ -31,14 +25,18 @@ export default function AdminDashboard() {
     { id: 6, nom: 'spaghetti', categorie: 'pates', unite: 'kg', poids: 1, prix: 12, img: '/imagelogin.png' },
   ]
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return products.filter((p) => {
-      const okCategory = category === 'all' ? true : p.categorie === category
-      const okQuery = !q ? true : p.nom.toLowerCase().includes(q)
-      return okCategory && okQuery
-    })
-  }, [category, query])
+  const q = query.trim().toLowerCase()
+  const filtered = products.filter((p) => {
+    const okCategory = category === 'all' ? true : p.categorie === category
+    const okQuery = !q ? true : p.nom.toLowerCase().includes(q)
+    return okCategory && okQuery
+  })
+
+  if (loading) return <div className="page">Loading…</div>
+
+  if (!user) return <Navigate to="/login" replace />
+
+  if ((user?.role?.nom || '') !== 'admin') return <Navigate to="/login" replace />
 
   return (
     <div className="admin-shell">
@@ -78,10 +76,6 @@ export default function AdminDashboard() {
           <button className="nav-item" type="button">
             <span className="nav-icon" />
             Utilisateurs
-          </button>
-          <button className="nav-item" type="button">
-            <span className="nav-icon" />
-            Livreurs
           </button>
           <button className="nav-item" type="button">
             <span className="nav-icon" />

@@ -22,8 +22,8 @@ export default function EntreeStock() {
   const [mouvements, setMouvements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [, setError] = useState("");
+  const [, setSuccess] = useState("");
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState("scan");
 
@@ -1035,6 +1035,7 @@ export default function EntreeStock() {
       ) : null}
 
       <ProductModal
+        key={`${addProductOpen ? '1' : '0'}-${missingCode || 'none'}`}
         open={addProductOpen}
         mode="create"
         initialValues={missingCode ? { code_article: missingCode } : null}

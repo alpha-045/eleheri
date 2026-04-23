@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 import { toast } from '../../lib/toast'
-import { useAuth } from '../../auth/AuthContext'
+import { useAuth } from '../../auth/authContext'
 
-export function useUtilisateursPage(fixedRole, search, setSearch) {
+export function useUtilisateursPage(fixedRole, search) {
   const { hasPermission, hasAnyPermission } = useAuth()
   
   const [roles, setRoles] = useState([])
@@ -54,7 +54,7 @@ export function useUtilisateursPage(fixedRole, search, setSearch) {
   }, [hasAnyPermission, loadAll])
 
   const allowedRoles = useMemo(() => {
-    const allowed = new Set(['agent', 'livreur'])
+    const allowed = new Set(['agent'])
     return roles.filter((r) => allowed.has((r?.nom || '').toString().toLowerCase()))
   }, [roles])
 

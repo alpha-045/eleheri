@@ -2,18 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 
 function getStatus(promo) {
-  const now = new Date()
-  const start = promo.start_date ? new Date(promo.start_date) : null
-  const end = promo.end_date ? new Date(promo.end_date) : null
-
-  if (!promo.is_active) return 'expired'
-  if (start && now < start) return 'scheduled'
-  if (end && now > end) return 'expired'
-  return 'active'
+  return promo.is_active ? 'active' : 'inactive'
 }
 
 export function usePromotionsPage() {
-  const [tab, setTab] = useState('active')
+  const [tab, setTab] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [promos, setPromos] = useState([])
@@ -73,6 +66,7 @@ export function usePromotionsPage() {
   }, [promos, targets])
 
   const visible = useMemo(() => {
+    if (tab === 'all') return enriched
     return enriched.filter((p) => p._status === tab)
   }, [enriched, tab])
 
@@ -121,6 +115,19 @@ export function usePromotionsPage() {
     }
   }
 
+  async function togglePromotionStatus(p) {
+    try {
+      await apiFetch(`/api/promotions/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...p, is_active: !p.is_active }),
+      })
+      await load()
+    } catch (e) {
+      setError(e?.message || 'Erreur updating status')
+    }
+  }
+
   return {
     tab,
     setTab,
@@ -141,5 +148,6 @@ export function usePromotionsPage() {
     openDelete,
     savePromotion,
     confirmDelete,
+    togglePromotionStatus,
   }
 }

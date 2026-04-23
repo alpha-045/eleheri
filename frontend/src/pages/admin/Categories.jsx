@@ -5,7 +5,6 @@ import { apiFetch } from '../../lib/api'
 import Alert from '../../components/Alert'
 import '../../styles/categories.css'
 
-const EMOJI_KEY = 'gs_category_emoji'
 const COUNT_KEY = 'gs_category_count'
 
 function getMap(key) {
@@ -22,29 +21,17 @@ function setMap(key, value) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
-function pickEmoji() {
-  const list = ['🥖', '🍿', '🥤', '🧴', '🧹', '🐶', '🍅', '🍚', '🍝', '🫒', '🧀']
-  return list[Math.floor(Math.random() * list.length)]
-}
-
 function CategoryModal({ open, mode = 'create', initialValues, onClose, onSubmit }) {
-  const [nom, setNom] = useState('')
-  const [emoji, setEmoji] = useState('🍞')
-
-  useEffect(() => {
-    if (!open) return
-    setNom(initialValues?.nom ?? '')
-    setEmoji(initialValues?.emoji ?? '🍞')
-  }, [open, initialValues])
+  const [nom, setNom] = useState(() => initialValues?.nom ?? '')
+  const [file, setFile] = useState(null)
 
   if (!open) return null
 
   function submit(e) {
     e.preventDefault()
     if (!nom.trim()) return
-    onSubmit({ nom: nom.trim(), emoji })
-    setNom('')
-    setEmoji('🍞')
+    if (mode !== 'edit' && !file) return
+    onSubmit({ nom: nom.trim(), file })
   }
 
   return (
@@ -61,15 +48,20 @@ function CategoryModal({ open, mode = 'create', initialValues, onClose, onSubmit
             Nom
             <input className="form-input" value={nom} onChange={(e) => setNom(e.target.value)} placeholder="Ex: Épicerie" />
           </label>
+          {mode === 'edit' && initialValues?.image ? (
+            <div className="cat-image-preview">
+              <img src={initialValues.image} alt={initialValues.nom || 'Catégorie'} />
+            </div>
+          ) : null}
           <label className="form-label">
-            Icône (emoji)
-            <input className="form-input" value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="🍞" />
+            Image
+            <input className="form-input" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </label>
           <div className="modal-foot">
             <button className="btn-ghost" type="button" onClick={onClose}>
               Annuler
             </button>
-            <button className="btn-primary" type="submit" disabled={!nom.trim()}>
+            <button className="btn-primary" type="submit" disabled={!nom.trim() || (mode !== 'edit' && !file)}>
               {mode === 'edit' ? 'Enregistrer' : 'Ajouter'}
             </button>
           </div>
@@ -105,25 +97,21 @@ export default function Categories() {
       const res = await apiFetch('/api/categories?per_page=1000')
       const items = Array.isArray(res?.data) ? res.data : res?.data?.data || []
 
-      const emojiMap = getMap(EMOJI_KEY)
       const countMap = getMap(COUNT_KEY)
 
-      const nextEmoji = { ...emojiMap }
       const nextCount = { ...countMap }
 
       for (const c of items) {
-        if (!nextEmoji[c.id]) nextEmoji[c.id] = pickEmoji()
         if (nextCount[c.id] == null) nextCount[c.id] = Math.floor(Math.random() * 70) + 5
       }
 
-      setMap(EMOJI_KEY, nextEmoji)
       setMap(COUNT_KEY, nextCount)
 
       setCategories(
         items.map((c) => ({
           id: c.id,
           nom: c.nom,
-          emoji: nextEmoji[c.id],
+          image: c.image || null,
           produits: nextCount[c.id],
         }))
       )
@@ -151,42 +139,35 @@ export default function Categories() {
   }, [categories])
 
   async function addCategory(values) {
-    const created = await apiFetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nom: values.nom,
-        description: null,
-      }),
-    })
-
-    const emojiMap = getMap(EMOJI_KEY)
-    emojiMap[created.id] = values.emoji || pickEmoji()
-    setMap(EMOJI_KEY, emojiMap)
+    const form = new FormData()
+    form.append('nom', values.nom)
+    form.append('description', '')
+    form.append('image', values.file)
 
     const countMap = getMap(COUNT_KEY)
-    countMap[created.id] = 0
     setMap(COUNT_KEY, countMap)
 
     setOpen(false)
+    await apiFetch('/api/categories', {
+      method: 'POST',
+      body: form,
+    })
     await load()
   }
 
   async function updateCategory(values) {
     if (!editing?.id) return
     try {
-      await apiFetch(`/api/categories/${editing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nom: values.nom,
-          description: null,
-        }),
-      })
+      const form = new FormData()
+      form.append('_method', 'PUT')
+      form.append('nom', values.nom)
+      form.append('description', '')
+      if (values.file) form.append('image', values.file)
 
-      const emojiMap = getMap(EMOJI_KEY)
-      emojiMap[editing.id] = values.emoji || emojiMap[editing.id] || pickEmoji()
-      setMap(EMOJI_KEY, emojiMap)
+      await apiFetch(`/api/categories/${editing.id}`, {
+        method: 'POST',
+        body: form,
+      })
 
       setEditOpen(false)
       setEditing(null)
@@ -226,7 +207,9 @@ export default function Categories() {
           categories.map((c) => (
           <div key={c.id} className="cat-card" onClick={() => navigate(`/admin/categories/${c.id}`)} role="button" tabIndex={0}>
             <div className="cat-top">
-              <div className="cat-ico">{c.emoji}</div>
+              <div className="cat-ico">
+                {c.image ? <img className="cat-img" src={c.image} alt={c.nom} /> : <div className="cat-img-fallback">{(c.nom || '?')[0]}</div>}
+              </div>
               <div>
                 <div className="cat-name">{c.nom}</div>
                 <div className="cat-count">{c.produits} produits</div>
@@ -272,8 +255,9 @@ export default function Categories() {
         </div>
       </div>
 
-      <CategoryModal open={open} mode="create" onClose={() => setOpen(false)} onSubmit={addCategory} />
+      <CategoryModal key={`create-${open ? '1' : '0'}`} open={open} mode="create" onClose={() => setOpen(false)} onSubmit={addCategory} />
       <CategoryModal
+        key={`edit-${editOpen ? editing?.id || 'x' : '0'}`}
         open={editOpen}
         mode="edit"
         initialValues={editing}

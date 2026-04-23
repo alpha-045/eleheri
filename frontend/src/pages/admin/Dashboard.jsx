@@ -177,8 +177,7 @@ export default function Dashboard() {
         if (!alive) return
         setError(e?.message || 'Erreur')
       } finally {
-        if (!alive) return
-        setLoading(false)
+        if (alive) setLoading(false)
       }
     }
     run()

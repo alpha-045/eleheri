@@ -3,14 +3,17 @@ import { X } from 'lucide-react'
 
 export function SubCategoryModal({ open, onClose, onSubmit }) {
   const [nom, setNom] = useState('')
+  const [file, setFile] = useState(null)
 
   if (!open) return null
 
   function submit(e) {
     e.preventDefault()
     if (!nom.trim()) return
-    onSubmit({ nom: nom.trim() })
+    if (!file) return
+    onSubmit({ nom: nom.trim(), file })
     setNom('')
+    setFile(null)
   }
 
   return (
@@ -27,11 +30,15 @@ export function SubCategoryModal({ open, onClose, onSubmit }) {
             Nom
             <input className="form-input" value={nom} onChange={(e) => setNom(e.target.value)} placeholder="Ex: Pâtes" />
           </label>
+          <label className="form-label">
+            Image
+            <input className="form-input" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          </label>
           <div className="modal-foot">
             <button className="btn-ghost" type="button" onClick={onClose}>
               Annuler
             </button>
-            <button className="btn-primary" type="submit" disabled={!nom.trim()}>
+            <button className="btn-primary" type="submit" disabled={!nom.trim() || !file}>
               Ajouter
             </button>
           </div>

@@ -7,7 +7,9 @@ export function ViewSubCategories({ subCategories, deleteSub, totals }) {
         {subCategories.map((s) => (
           <div key={s.id} className="cat-card">
             <div className="cat-top">
-              <div className="cat-ico">📁</div>
+              <div className="cat-ico">
+                {s.image ? <img className="cat-img" src={s.image} alt={s.nom} /> : <div className="cat-img-fallback">{(s.nom || '?')[0]}</div>}
+              </div>
               <div>
                 <div className="cat-name">{s.nom}</div>
                 <div className="cat-count">{s.produits} produits</div>

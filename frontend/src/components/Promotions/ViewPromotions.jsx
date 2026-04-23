@@ -1,4 +1,4 @@
-import { CalendarDays, Pencil, Percent, Tag, Trash2, Truck } from 'lucide-react'
+import { CalendarDays, Pencil, Percent, Tag, Trash2, Truck, MessageCircle } from 'lucide-react'
 
 function formatDateRange(start, end) {
   const s = start ? new Date(start) : null
@@ -29,10 +29,16 @@ function PromoTypeLabel({ promo }) {
   return 'Montant fixe'
 }
 
-export function ViewPromotions({ visible, openEdit, openDelete }) {
+export function ViewPromotions({ visible, openEdit, openDelete, toggleStatus }) {
+  const shareWhatsApp = (p) => {
+    const value = p.type === 'pourcentage' ? `${p.value}%` : `${p.value} DH`
+    const text = `🔥 *PROMO FLASH : ${p.name}* 🔥\n\n🎁 Avantage : *${value}* de réduction !\n📅 Valable jusqu'au : ${p.end_date ? new Date(p.end_date).toLocaleDateString() : 'Prochaine commande'}\n\nProfitez-en vite !`
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
   return (
     <div className="promo-list">
-      {visible.length === 0 ? <div className="products-empty">Aucune promotion</div> : null}
+      {visible.length === 0 ? <div className="empty-state">Aucune promotion trouvée</div> : null}
 
       {visible.map((p) => (
         <div key={p.id} className="promo-card">
@@ -43,9 +49,19 @@ export function ViewPromotions({ visible, openEdit, openDelete }) {
             <div className="promo-info">
               <div className="promo-title-row">
                 <div className="promo-title">{p.name}</div>
-                {p._status === 'active' ? <span className="promo-badge promo-badge-active">Active</span> : null}
-                {p._status === 'scheduled' ? <span className="promo-badge promo-badge-scheduled">Programmée</span> : null}
-                {p._status === 'expired' ? <span className="promo-badge promo-badge-expired">Expirée</span> : null}
+                <div className="promo-status-toggle">
+                  <label className="toggle-switch mini-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={!!p.is_active} 
+                      onChange={() => toggleStatus(p)}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                  <span className={p.is_active ? 'promo-status-text active' : 'promo-status-text'}>
+                    {p.is_active ? 'Actif' : 'Inactif'}
+                  </span>
+                </div>
               </div>
               <div className="promo-meta">
                 {p.code_promo ? <span className="promo-code">{p.code_promo}</span> : null}
@@ -60,20 +76,29 @@ export function ViewPromotions({ visible, openEdit, openDelete }) {
           </div>
 
           <div className="promo-right">
-            <div className="promo-value">
-              <div className="promo-value-big">
-                <PromoValue promo={p} />
+            <div className="promo-value-section">
+              <div className="promo-value">
+                <div className="promo-value-big">
+                  <PromoValue promo={p} />
+                </div>
+                <div className="promo-value-sub">
+                  <PromoTypeLabel promo={p} />
+                </div>
               </div>
-              <div className="promo-value-sub">
-                <PromoTypeLabel promo={p} />
-              </div>
+              <button 
+                className="promo-share-btn" 
+                onClick={() => shareWhatsApp(p)}
+                title="Partager sur WhatsApp"
+              >
+                <MessageCircle size={18} color="#25D366" />
+              </button>
             </div>
             <div className="promo-actions">
-              <button className="mini" type="button" onClick={() => openEdit(p)} aria-label="Edit">
-                <Pencil size={16} color="#64748b" />
+              <button className="btn-icon" type="button" onClick={() => openEdit(p)} title="Modifier">
+                <Pencil size={16} />
               </button>
-              <button className="mini mini-danger" type="button" onClick={() => openDelete(p)} aria-label="Delete">
-                <Trash2 size={16} color="#ef4444" />
+              <button className="btn-icon btn-danger" type="button" onClick={() => openDelete(p)} title="Supprimer">
+                <Trash2 size={16} />
               </button>
             </div>
           </div>

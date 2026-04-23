@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('commandes_vente', function (Blueprint $table) {
             $table->string('numero', 50)->nullable()->after('id')->unique();
-            $table->enum('type_commande', ['livraison', 'retrait'])->default('livraison')->after('numero');
+            $table->string('type_commande', 50)->default('livraison')->after('numero');
             $table->decimal('total', 10, 2)->default(0)->after('note');
 
             // To support 'en_cours' and 'livre' which are in the UI, we might just use string
@@ -26,6 +26,7 @@ return new class extends Migration
         // Modify statut column to be string instead of enum to avoid issues, or just add the new statuses if it's MySQL.
         // It's safer to just change it to string so we can use any status.
         \Illuminate\Support\Facades\DB::statement("ALTER TABLE commandes_vente MODIFY COLUMN statut VARCHAR(50) DEFAULT 'en_attente'");
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE commandes_vente MODIFY COLUMN type_commande VARCHAR(50) DEFAULT 'livraison'");
     }
 
     /**

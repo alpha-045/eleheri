@@ -2,6 +2,13 @@ export function PromoTabs({ tab, setTab }) {
   return (
     <div className="promo-tabs">
       <button
+        className={tab === 'all' ? 'promo-tab promo-tab-active' : 'promo-tab'}
+        type="button"
+        onClick={() => setTab('all')}
+      >
+        Toutes
+      </button>
+      <button
         className={tab === 'active' ? 'promo-tab promo-tab-active' : 'promo-tab'}
         type="button"
         onClick={() => setTab('active')}
@@ -9,18 +16,11 @@ export function PromoTabs({ tab, setTab }) {
         Actives
       </button>
       <button
-        className={tab === 'scheduled' ? 'promo-tab promo-tab-active' : 'promo-tab'}
+        className={tab === 'inactive' ? 'promo-tab promo-tab-active' : 'promo-tab'}
         type="button"
-        onClick={() => setTab('scheduled')}
+        onClick={() => setTab('inactive')}
       >
-        Programmées
-      </button>
-      <button
-        className={tab === 'expired' ? 'promo-tab promo-tab-active' : 'promo-tab'}
-        type="button"
-        onClick={() => setTab('expired')}
-      >
-        Expirées
+        Inactives
       </button>
     </div>
   )

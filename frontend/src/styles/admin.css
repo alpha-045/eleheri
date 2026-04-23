@@ -21,6 +21,7 @@
   flex-direction: column;
   padding: 18px 14px 14px;
   box-sizing: border-box;
+  transition: transform 0.3s ease, margin-left 0.3s ease;
 }
 
 .brand {
@@ -442,7 +443,7 @@
 
 
 .icon-btn-menu {
-  display: none;
+  display: grid;
 }
 
 .user-chip {
@@ -743,7 +744,12 @@
   .sidebar-close {
     display: grid;
   }
+}
 
+@media (min-width: 901px) {
+  .sidebar:not(.sidebar-open) {
+    margin-left: -272px;
+  }
 }
 
 .sidebar-overlay {
@@ -759,6 +765,12 @@
 .sidebar-overlay-open {
   opacity: 1;
   pointer-events: auto;
+}
+
+@media (min-width: 901px) {
+  .sidebar-overlay {
+    display: none;
+  }
 }
 
 .icon-pill {

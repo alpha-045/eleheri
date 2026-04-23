@@ -15,6 +15,11 @@ export async function fetchCategories(perPage = 1000) {
   return Array.isArray(data?.data) ? data.data : data?.data?.data || []
 }
 
+export async function fetchUnites(perPage = 1000) {
+  const data = await apiFetch(`/api/unites?per_page=${perPage}`)
+  return Array.isArray(data?.data) ? data.data : data?.data?.data || []
+}
+
 export async function createArticleWithImage({ sous_categorie_id, code_article, nom, unite, file }) {
   const form = new FormData()
   form.append('sous_categorie_id', String(sous_categorie_id))
